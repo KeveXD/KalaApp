@@ -4,19 +4,31 @@ import 'package:kalaapp/utils/eszkoz_model.dart';
 import '../constants.dart';
 import '../utils/elem_model.dart';
 
-class MobileScaffold extends StatefulWidget {
-  const MobileScaffold({Key? key}) : super(key: key);
+class MenuMobil extends StatefulWidget {
+  const MenuMobil({Key? key}) : super(key: key);
 
   @override
-  State<MobileScaffold> createState() => _MobileScaffoldState();
+  State<MenuMobil> createState() => _MenuMobilState();
 }
 
-class _MobileScaffoldState extends State<MobileScaffold> {
+class _MenuMobilState extends State<MenuMobil> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: defaultBackgroundColor,
-      appBar: myAppBar,
+      appBar: AppBar(
+        backgroundColor: appBarColor,
+        title: Text(' '),
+        centerTitle: false,
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+          ),
+        ),
+      ),
       drawer: myDrawer,
       body: Padding(
         padding: const EdgeInsets.all(8.0),

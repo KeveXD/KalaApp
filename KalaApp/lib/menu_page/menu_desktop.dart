@@ -4,14 +4,14 @@ import '../constants.dart';
 import '../utils/elem_model.dart';
 import '../utils/eszkoz_model.dart';
 
-class DesktopScaffold extends StatefulWidget {
-  const DesktopScaffold({Key? key}) : super(key: key);
+class MenuDesktop extends StatefulWidget {
+  const MenuDesktop({Key? key}) : super(key: key);
 
   @override
-  State<DesktopScaffold> createState() => _DesktopScaffoldState();
+  State<MenuDesktop> createState() => _MenuDesktopState();
 }
 
-class _DesktopScaffoldState extends State<DesktopScaffold> {
+class _MenuDesktopState extends State<MenuDesktop> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,12 +25,10 @@ class _DesktopScaffoldState extends State<DesktopScaffold> {
             // open drawer
             myDrawer,
 
-            // first half of page
             Expanded(
               flex: 2,
               child: Column(
                 children: [
-                  // first 4 boxes in grid
                   AspectRatio(
                     aspectRatio: 4,
                     child: SizedBox(
@@ -44,8 +42,6 @@ class _DesktopScaffoldState extends State<DesktopScaffold> {
                       ),
                     ),
                   ),
-
-                  // list of previous days
                   Expanded(
                     child: ListView.builder(
                       itemCount: 7,
@@ -57,7 +53,7 @@ class _DesktopScaffoldState extends State<DesktopScaffold> {
                 ],
               ),
             ),
-            // second half of page
+
             Expanded(
               child: Column(
                 children: [
@@ -71,7 +67,6 @@ class _DesktopScaffoldState extends State<DesktopScaffold> {
                       ),
                     ),
                   ),
-                  // list of stuff
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),

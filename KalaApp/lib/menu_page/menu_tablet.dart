@@ -4,14 +4,14 @@ import 'package:kalaapp/utils/elem_model.dart';
 import '../constants.dart';
 import '../utils/eszkoz_model.dart';
 
-class TabletScaffold extends StatefulWidget {
-  const TabletScaffold({Key? key}) : super(key: key);
+class MenuTablet extends StatefulWidget {
+  const MenuTablet({Key? key}) : super(key: key);
 
   @override
-  State<TabletScaffold> createState() => _TabletScaffoldState();
+  State<MenuTablet> createState() => _MenuTabletState();
 }
 
-class _TabletScaffoldState extends State<TabletScaffold> {
+class _MenuTabletState extends State<MenuTablet> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,7 +22,7 @@ class _TabletScaffoldState extends State<TabletScaffold> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            // first 4 boxes in grid
+
             AspectRatio(
               aspectRatio: 4,
               child: SizedBox(
@@ -37,7 +37,6 @@ class _TabletScaffoldState extends State<TabletScaffold> {
               ),
             ),
 
-            // list of previous days
             Expanded(
               child: ListView.builder(
                 itemCount: 6,

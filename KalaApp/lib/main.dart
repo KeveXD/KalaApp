@@ -18,9 +18,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.green),
       home: ResponsiveLayout(
-        mobileBody: const MobileScaffold(),
-        tabletBody: const TabletScaffold(),
-        desktopBody: const DesktopScaffold(),
+        mobileBody: const MenuMobil(),
+        tabletBody: const MenuTablet(),
+        desktopBody: const MenuDesktop(),
       ),
     );
   }
