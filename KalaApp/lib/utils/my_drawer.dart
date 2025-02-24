@@ -58,7 +58,6 @@ class MyDrawer extends StatelessWidget {
                 style: drawerTextColor,
               ),
               onTap: () {
-                // Visszavisz a bejelentkezési képernyőre kijelentkezéskor
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -67,26 +66,6 @@ class MyDrawer extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// FŐKÉPERNYŐ (HOME)
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: defaultBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: appBarColor,
-        title: const Text('Főoldal'),
-      ),
-      drawer: const MyDrawer(),
-      body: const Center(
-        child: Text("Üdv a főoldalon!"),
       ),
     );
   }
