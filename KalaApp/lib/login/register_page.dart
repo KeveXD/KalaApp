@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../login_viewmodel.dart';
 
 import '../constants.dart';
+import '../login_viewmodel.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -74,13 +77,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () {
-                      if (passwordController.text == confirmPasswordController.text) {
-                        print("Regisztráció: ${emailController.text}");
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("A jelszavak nem egyeznek!")),
-                        );
-                      }
+                      // Regisztrációs logika a LoginViewModel-on keresztül
+                      Provider.of<LoginViewModel>(context, listen: false).registerUser(
+                        email: emailController.text,
+                        password: passwordController.text,
+                        confirmPassword: confirmPasswordController.text,
+                        context: context,
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: buttonColor,

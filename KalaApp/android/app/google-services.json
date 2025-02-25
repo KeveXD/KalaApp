@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "614739756976",
+    "project_id": "kalaapp-ed007",
+    "storage_bucket": "kalaapp-ed007.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:614739756976:android:e36b1396c2eae7cbf6b875",
+        "android_client_info": {
+          "package_name": "com.keve.kalaapp.kalaapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDP7tu432Dil4fQAIiFwOr7LQci9MLxRQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
