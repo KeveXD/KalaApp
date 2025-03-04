@@ -15,7 +15,7 @@ class MyDrawer extends StatelessWidget {
         children: [
           const DrawerHeader(
             child: Icon(
-              Icons.favorite,
+              Icons.warehouse,
               size: 64,
             ),
           ),
@@ -60,7 +60,7 @@ class MyDrawer extends StatelessWidget {
               onTap: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  MaterialPageRoute(builder: (context) => LoginPage()),
                 );
               },
             ),

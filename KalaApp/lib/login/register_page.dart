@@ -1,24 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../login_viewmodel.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants.dart';
 import '../login_viewmodel.dart';
 
-class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({Key? key}) : super(key: key);
+class RegisterPage extends ConsumerWidget {
+  RegisterPage({super.key});
 
-  @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
-}
-
-class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loginState = ref.watch(loginViewModelProvider); // Figyeljük az állapotot
+
     return Scaffold(
       backgroundColor: defaultBackgroundColor,
       appBar: AppBar(
@@ -75,25 +70,41 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     obscureText: true,
                   ),
                   const SizedBox(height: 20),
+
+                  // Regisztráció gomb
                   ElevatedButton(
-                    onPressed: () {
-                      // Regisztrációs logika a LoginViewModel-on keresztül
-                      Provider.of<LoginViewModel>(context, listen: false).registerUser(
+                    onPressed: loginState.isLoading
+                        ? null
+                        : () {
+                      ref.read(loginViewModelProvider.notifier).registerUser(
                         email: emailController.text,
                         password: passwordController.text,
                         confirmPassword: confirmPasswordController.text,
-                        context: context,
+                        showSnackBar: (message) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(message)),
+                          );
+                        },
                       );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: buttonColor,
                       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                     ),
-                    child: Text(
+                    child: loginState.isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : Text(
                       "Regisztráció",
                       style: TextStyle(fontSize: 16, color: buttonTextColor),
                     ),
                   ),
+
+                  // Hibaüzenet kijelzése
+                  if (loginState.errorMessage != null) ...[
+                    const SizedBox(height: 10),
+                    Text(loginState.errorMessage!,
+                        style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                  ],
                 ],
               ),
             ),

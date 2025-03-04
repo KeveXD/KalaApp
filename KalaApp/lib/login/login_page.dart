@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:kalaapp/login/register_page.dart';
-import 'package:kalaapp/utils/my_drawer.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants.dart';
+import '../login/register_page.dart';
+import '../login_viewmodel.dart';
+import '../utils/my_drawer.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class LoginPage extends ConsumerWidget {
+  LoginPage({Key? key}) : super(key: key);
 
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loginState = ref.watch(loginViewModelProvider); // Figyeljük az állapotot
+
     return Scaffold(
       backgroundColor: defaultBackgroundColor,
       appBar: AppBar(
@@ -53,24 +51,33 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 15),
                   TextField(
-                    controller: usernameController,
+                    controller: passwordController,
                     decoration: InputDecoration(
-                      labelText: "Felhasználónév",
+                      labelText: "Jelszó",
                       border: OutlineInputBorder(borderSide: BorderSide(color: inputBorderColor)),
                       filled: true,
                       fillColor: inputFieldColor,
                     ),
+                    obscureText: true,
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: () {
-                      print("Bejelentkezés: ${emailController.text}, ${usernameController.text}");
+                    onPressed: loginState.isLoading
+                        ? null
+                        : () {
+                      ref.read(loginViewModelProvider.notifier).loginUser(
+                        email: emailController.text,
+                        password: passwordController.text,
+                        context: context,
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: buttonColor,
                       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                     ),
-                    child: Text(
+                    child: loginState.isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : Text(
                       "Bejelentkezés",
                       style: TextStyle(fontSize: 16, color: buttonTextColor),
                     ),
@@ -80,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                        MaterialPageRoute(builder: (context) => RegisterPage()),
                       );
                     },
                     child: Text(
@@ -88,6 +95,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: TextStyle(fontSize: 14, color: buttonColor),
                     ),
                   ),
+                  if (loginState.errorMessage != null) ...[
+                    const SizedBox(height: 10),
+                    Text(loginState.errorMessage!,
+                        style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                  ],
                 ],
               ),
             ),
