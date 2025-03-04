@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../constants.dart';
 
 class EszkozModel extends StatelessWidget {
   const EszkozModel({super.key});
@@ -10,7 +11,7 @@ class EszkozModel extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          color: Colors.grey[400],
+          color: listItemColor,
         ),
       ),
     );

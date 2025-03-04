@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../constants.dart';
-
+import '../constants.dart'; // A globális színpaletta importálása
 import '../utils/elem_model.dart';
 import '../utils/eszkoz_model.dart';
+import '../utils/profil_widget.dart'; // Az új ProfilWidget importálása
 
 class MenuDesktop extends StatefulWidget {
   const MenuDesktop({Key? key}) : super(key: key);
@@ -15,19 +15,19 @@ class _MenuDesktopState extends State<MenuDesktop> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: defaultBackgroundColor,
-      appBar: myAppBar,
+      backgroundColor: defaultBackgroundColor, // A háttér szín beállítása
+      appBar: myAppBar, // AppBar a színpalettával
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(16.0), // Növelt padding
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // open drawer
-            myDrawer,
+            myDrawer, // Oldalsó menü
 
             Expanded(
               flex: 2,
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AspectRatio(
                     aspectRatio: 4,
@@ -35,7 +35,11 @@ class _MenuDesktopState extends State<MenuDesktop> {
                       width: double.infinity,
                       child: GridView.builder(
                         itemCount: 4,
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 4,
+                          crossAxisSpacing: 8.0,
+                          mainAxisSpacing: 8.0,
+                        ),
                         itemBuilder: (context, index) {
                           return EszkozModel();
                         },
@@ -56,24 +60,32 @@ class _MenuDesktopState extends State<MenuDesktop> {
 
             Expanded(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      height: 400,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.grey[400],
-                      ),
-                    ),
+                  // ProfilWidget az első konténerben
+
+                  ProfilWidget(
+                    name: "Keve",
+                    role: "Felhasználó",
+                    hasDebt: false,
                   ),
+
+                  // Második Container
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Container(
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(12),
+                          color: listItemColor,
+                          boxShadow: [
+                            BoxShadow(
+                              color: cardShadowColor.withOpacity(0.2),
+                              spreadRadius: 2,
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
                         ),
                       ),
                     ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../constants.dart';
 
 class ElemModel extends StatelessWidget {
   const ElemModel({super.key});
@@ -9,7 +10,7 @@ class ElemModel extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: Container(
         height: 78,
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: Colors.grey[200]),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: cardBackgroundColor),
       ),
     );
   }

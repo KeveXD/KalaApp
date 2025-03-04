@@ -7,7 +7,6 @@ import '../menu_page/menu_mobil.dart';
 import '../menu_page/menu_tablet.dart';
 import '../utils/responsive_layout.dart';
 
-// Állapotmodell a loginhoz
 class LoginState {
   final bool isLoading;
   final String? errorMessage;
@@ -15,7 +14,7 @@ class LoginState {
   LoginState({this.isLoading = false, this.errorMessage});
 }
 
-// ViewModel (StateNotifier) - Riverpod
+// Riverpod
 class LoginViewModel extends StateNotifier<LoginState> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -26,7 +25,7 @@ class LoginViewModel extends StateNotifier<LoginState> {
     required String password,
     required BuildContext context,
   }) async {
-    state = LoginState(isLoading: true); // Betöltés indítása
+    state = LoginState(isLoading: true);
 
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
@@ -52,9 +51,6 @@ class LoginViewModel extends StateNotifier<LoginState> {
     }
   }
 
-
-
-
   Future<void> registerUser({
     required String email,
     required String password,
@@ -77,19 +73,6 @@ class LoginViewModel extends StateNotifier<LoginState> {
       showSnackBar("Hiba: ${e.message}");
     }
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 // Riverpod provider

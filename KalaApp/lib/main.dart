@@ -9,7 +9,7 @@ import 'utils/responsive_layout.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(); // Firebase inicializálása
+  await Firebase.initializeApp(); // Firebase inicializálása kell
   runApp(ProviderScope(child: MyApp())); // ProviderScope köré csomagolva
 }
 

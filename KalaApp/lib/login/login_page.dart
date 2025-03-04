@@ -16,24 +16,24 @@ class LoginPage extends ConsumerWidget {
     final loginState = ref.watch(loginViewModelProvider); // Figyeljük az állapotot
 
     return Scaffold(
-      backgroundColor: defaultBackgroundColor,
+      backgroundColor: defaultBackgroundColor, // Szín a háttérhez
       appBar: AppBar(
-        backgroundColor: appBarColor,
-        title: Text("Bejelentkezés", style: TextStyle(color: primaryTextColor)),
+        backgroundColor: appBarColor, // AppBar színe
+        title: Text("Bejelentkezés", style: TextStyle(color: primaryTextColor)), // Cím szövege
         centerTitle: true,
-        iconTheme: IconThemeData(color: iconColor),
+        iconTheme: IconThemeData(color: iconColor), // Ikonok színe
       ),
-      drawer: const MyDrawer(),
+      drawer: const MyDrawer(), // Oldalsó menü (Drawer)
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: tilePadding, // Padding beállítás
           child: Card(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
             elevation: 5,
-            color: cardBackgroundColor,
-            shadowColor: cardShadowColor,
+            color: cardBackgroundColor, // Kártya háttérszíne
+            shadowColor: cardShadowColor, // Kártya árnyéka
             child: Padding(
               padding: const EdgeInsets.all(24.0),
               child: Column(
@@ -43,9 +43,9 @@ class LoginPage extends ConsumerWidget {
                     controller: emailController,
                     decoration: InputDecoration(
                       labelText: "E-mail",
-                      border: OutlineInputBorder(borderSide: BorderSide(color: inputBorderColor)),
+                      border: OutlineInputBorder(borderSide: BorderSide(color: inputBorderColor)), // Szegély színe
                       filled: true,
-                      fillColor: inputFieldColor,
+                      fillColor: inputFieldColor, // Bemeneti mező háttérszíne
                     ),
                     keyboardType: TextInputType.emailAddress,
                   ),
@@ -54,9 +54,9 @@ class LoginPage extends ConsumerWidget {
                     controller: passwordController,
                     decoration: InputDecoration(
                       labelText: "Jelszó",
-                      border: OutlineInputBorder(borderSide: BorderSide(color: inputBorderColor)),
+                      border: OutlineInputBorder(borderSide: BorderSide(color: inputBorderColor)), // Szegély színe
                       filled: true,
-                      fillColor: inputFieldColor,
+                      fillColor: inputFieldColor, // Bemeneti mező háttérszíne
                     ),
                     obscureText: true,
                   ),
@@ -65,22 +65,22 @@ class LoginPage extends ConsumerWidget {
                     onPressed: loginState.isLoading
                         ? null
                         : () {
-                      ref.read(loginViewModelProvider.notifier).loginUser(
-                        email: emailController.text,
-                        password: passwordController.text,
-                        context: context,
-                      );
-                    },
+                            ref.read(loginViewModelProvider.notifier).loginUser(
+                                  email: emailController.text,
+                                  password: passwordController.text,
+                                  context: context,
+                                );
+                          },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: buttonColor,
+                      backgroundColor: buttonColor, // Gomb háttérszíne
                       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                     ),
                     child: loginState.isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
                         : Text(
-                      "Bejelentkezés",
-                      style: TextStyle(fontSize: 16, color: buttonTextColor),
-                    ),
+                            "Bejelentkezés",
+                            style: TextStyle(fontSize: 16, color: buttonTextColor), // Gomb szövege
+                          ),
                   ),
                   const SizedBox(height: 10),
                   TextButton(
@@ -92,13 +92,15 @@ class LoginPage extends ConsumerWidget {
                     },
                     child: Text(
                       "Nincs még fiókod? Regisztrálj itt!",
-                      style: TextStyle(fontSize: 14, color: buttonColor),
+                      style: TextStyle(fontSize: 14, color: buttonColor), // Szöveg színe
                     ),
                   ),
                   if (loginState.errorMessage != null) ...[
                     const SizedBox(height: 10),
-                    Text(loginState.errorMessage!,
-                        style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                    Text(
+                      loginState.errorMessage!,
+                      style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold), // Hibaüzenet
+                    ),
                   ],
                 ],
               ),
