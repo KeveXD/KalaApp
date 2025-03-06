@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants.dart';
 import '../login/register_page.dart';
 import '../login_viewmodel.dart';
-import '../utils/my_drawer.dart';
+import '../widgets/drawer_widget.dart';
 
 class LoginPage extends ConsumerWidget {
   LoginPage({Key? key}) : super(key: key);
@@ -23,7 +23,7 @@ class LoginPage extends ConsumerWidget {
         centerTitle: true,
         iconTheme: IconThemeData(color: iconColor), // Ikonok színe
       ),
-      drawer: const MyDrawer(), // Oldalsó menü (Drawer)
+      drawer: const DrawerWidget(), // Oldalsó menü (Drawer)
       body: Center(
         child: Padding(
           padding: tilePadding, // Padding beállítás

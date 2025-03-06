@@ -10,6 +10,7 @@ class ElemModel extends StatefulWidget {
 
 class _ElemModelState extends State<ElemModel> {
   bool isExpanded = false; // Lenyitás állapota
+  bool isChecked = false; // Checkbox állapota
 
   @override
   Widget build(BuildContext context) {
@@ -56,16 +57,29 @@ class _ElemModelState extends State<ElemModel> {
                   color: secondaryTextColor,
                 ),
               ),
-              trailing: IconButton(
-                icon: Icon(
-                  isExpanded ? Icons.expand_less : Icons.expand_more,
-                  color: iconColor,
-                ),
-                onPressed: () {
-                  setState(() {
-                    isExpanded = !isExpanded;
-                  });
-                },
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Checkbox(
+                    value: isChecked,
+                    onChanged: (value) {
+                      setState(() {
+                        isChecked = value ?? false;
+                      });
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      isExpanded ? Icons.expand_less : Icons.expand_more,
+                      color: iconColor,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        isExpanded = !isExpanded;
+                      });
+                    },
+                  ),
+                ],
               ),
             ),
           ),

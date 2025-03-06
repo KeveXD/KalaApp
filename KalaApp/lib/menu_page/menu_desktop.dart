@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../constants.dart'; // A globális színpaletta importálása
 import '../utils/elem_model.dart';
-import '../utils/eszkoz_model.dart';
-import '../utils/profil_widget.dart'; // Az új ProfilWidget importálása
+import '../widgets/eszkoz_widget.dart';
+import '../widgets/profil_widget.dart'; // Az új ProfilWidget importálása
 
 class MenuDesktop extends StatefulWidget {
   const MenuDesktop({Key? key}) : super(key: key);
@@ -41,7 +41,7 @@ class _MenuDesktopState extends State<MenuDesktop> {
                           mainAxisSpacing: 8.0,
                         ),
                         itemBuilder: (context, index) {
-                          return EszkozModel();
+                          return RaktarWidget();
                         },
                       ),
                     ),

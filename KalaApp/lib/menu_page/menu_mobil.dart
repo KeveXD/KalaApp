@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kalaapp/utils/eszkoz_model.dart';
+import 'package:kalaapp/widgets/eszkoz_widget.dart';
 
 import '../constants.dart';
 import '../utils/elem_model.dart';
@@ -42,7 +42,7 @@ class _MenuMobilState extends State<MenuMobil> {
                   itemCount: 4,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
                   itemBuilder: (context, index) {
-                    return EszkozModel();
+                    return RaktarWidget();
                   },
                 ),
               ),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../constants.dart';
 
-class EszkozModel extends StatelessWidget {
-  const EszkozModel({super.key});
+class RaktarWidget extends StatelessWidget {
+  const RaktarWidget({super.key});
 
   @override
   Widget build(BuildContext context) {

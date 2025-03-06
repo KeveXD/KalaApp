@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kalaapp/utils/my_drawer.dart';
+import 'package:kalaapp/widgets/drawer_widget.dart';
 
 // Természetes barna és zöld árnyalatok a fenyőerdő hangulathoz
 var defaultBackgroundColor = const Color(0xFFB2A68E); // Világos, meleg barna háttérszín (földszín)
@@ -40,4 +40,4 @@ var myAppBar = AppBar(
 );
 
 // Drawer létrehozása a megfelelő színnel
-var myDrawer = MyDrawer();
+var myDrawer = DrawerWidget();

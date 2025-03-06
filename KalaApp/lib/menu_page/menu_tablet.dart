@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kalaapp/utils/elem_model.dart';
 
 import '../constants.dart';
-import '../utils/eszkoz_model.dart';
+import '../widgets/eszkoz_widget.dart';
 
 class MenuTablet extends StatefulWidget {
   const MenuTablet({Key? key}) : super(key: key);
@@ -31,7 +31,7 @@ class _MenuTabletState extends State<MenuTablet> {
                   itemCount: 4,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
                   itemBuilder: (context, index) {
-                    return EszkozModel();
+                    return RaktarWidget();
                   },
                 ),
               ),
