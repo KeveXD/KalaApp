@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants.dart'; // A globális színpaletta importálása
-import '../utils/elem_model.dart';
+import '../utils/eszkoz_widget.dart';
 import '../widgets/eszkoz_widget.dart';
 import '../widgets/profil_widget.dart'; // Az új ProfilWidget importálása
 
@@ -50,7 +50,7 @@ class _MenuDesktopState extends State<MenuDesktop> {
                     child: ListView.builder(
                       itemCount: 7,
                       itemBuilder: (context, index) {
-                        return ElemModel();
+                        return EszkozWidget();
                       },
                     ),
                   ),

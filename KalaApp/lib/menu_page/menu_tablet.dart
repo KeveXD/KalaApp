@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kalaapp/utils/elem_model.dart';
+import 'package:kalaapp/utils/eszkoz_widget.dart';
 
 import '../constants.dart';
 import '../widgets/eszkoz_widget.dart';
@@ -41,7 +41,7 @@ class _MenuTabletState extends State<MenuTablet> {
               child: ListView.builder(
                 itemCount: 6,
                 itemBuilder: (context, index) {
-                  return ElemModel();
+                  return EszkozWidget();
                 },
               ),
             ),

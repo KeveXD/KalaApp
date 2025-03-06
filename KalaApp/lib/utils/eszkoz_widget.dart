@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import '../constants.dart';
 
-class ElemModel extends StatefulWidget {
-  const ElemModel({Key? key}) : super(key: key);
+class EszkozWidget extends StatefulWidget {
+  const EszkozWidget({Key? key}) : super(key: key);
 
   @override
-  State<ElemModel> createState() => _ElemModelState();
+  State<EszkozWidget> createState() => _EszkozWidgetState();
 }
 
-class _ElemModelState extends State<ElemModel> {
+class _EszkozWidgetState extends State<EszkozWidget> {
   bool isExpanded = false; // Lenyitás állapota
   bool isChecked = false; // Checkbox állapota
 

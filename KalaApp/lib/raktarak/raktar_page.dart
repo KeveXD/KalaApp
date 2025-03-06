@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../constants.dart';
 import '../widgets/eszkoz_widget.dart';
-import '../utils/elem_model.dart';
-import '../widgets/talca_widget.dart'; // Az alsó tálca widget importálása
+import '../utils/eszkoz_widget.dart';
+import '../widgets/talca_widget.dart';
+import 'new_eszkoz.dart'; // Az alsó tálca widget importálása
 
 class RaktarPage extends StatefulWidget {
   const RaktarPage({Key? key}) : super(key: key);
@@ -130,7 +131,7 @@ class _RaktarPageState extends State<RaktarPage> {
               child: ListView.builder(
                 itemCount: 6,
                 itemBuilder: (context, index) {
-                  return ElemModel();
+                  return EszkozWidget();
                 },
               ),
             ),
@@ -149,8 +150,7 @@ class _RaktarPageState extends State<RaktarPage> {
           TalcaItem(
             icon: Icons.add_circle,
             onTap: () {
-              print("Új elem hozzáadása");
-              // Navigator.pushNamed(context, "/add-item"); // Ha van route hozzá
+              showNewEszkozDialog(context);
             },
           ),
           TalcaItem(

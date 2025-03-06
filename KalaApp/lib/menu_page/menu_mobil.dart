@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kalaapp/widgets/eszkoz_widget.dart';
 
 import '../constants.dart';
-import '../utils/elem_model.dart';
+import '../utils/eszkoz_widget.dart';
 
 class MenuMobil extends StatefulWidget {
   const MenuMobil({Key? key}) : super(key: key);
@@ -51,7 +51,7 @@ class _MenuMobilState extends State<MenuMobil> {
               child: ListView.builder(
                 itemCount: 4,
                 itemBuilder: (context, index) {
-                  return ElemModel();
+                  return EszkozWidget();
                 },
               ),
             ),
