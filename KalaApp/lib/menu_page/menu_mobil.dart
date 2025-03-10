@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:kalaapp/widgets/eszkoz_widget.dart';
+import 'package:kalaapp/widgets/raktar_widget.dart';
 
 import '../constants.dart';
-import '../utils/eszkoz_widget.dart';
+import '../widgets/eszkoz_widget.dart';
 
 class MenuMobil extends StatefulWidget {
   const MenuMobil({Key? key}) : super(key: key);

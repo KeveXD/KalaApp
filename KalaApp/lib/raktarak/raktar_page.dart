@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants.dart';
+import '../widgets/raktar_widget.dart';
 import '../widgets/eszkoz_widget.dart';
-import '../utils/eszkoz_widget.dart';
 import '../widgets/talca_widget.dart';
 import 'new_eszkoz.dart'; // Az alsó tálca widget importálása
 

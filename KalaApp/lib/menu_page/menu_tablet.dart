@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:kalaapp/utils/eszkoz_widget.dart';
+import 'package:kalaapp/widgets/eszkoz_widget.dart';
 
 import '../constants.dart';
-import '../widgets/eszkoz_widget.dart';
+import '../widgets/raktar_widget.dart';
 
 class MenuTablet extends StatefulWidget {
   const MenuTablet({Key? key}) : super(key: key);

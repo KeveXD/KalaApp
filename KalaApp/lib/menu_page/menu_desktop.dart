@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants.dart'; // A globális színpaletta importálása
-import '../utils/eszkoz_widget.dart';
 import '../widgets/eszkoz_widget.dart';
+import '../widgets/raktar_widget.dart';
 import '../widgets/profil_widget.dart'; // Az új ProfilWidget importálása
 
 class MenuDesktop extends StatefulWidget {

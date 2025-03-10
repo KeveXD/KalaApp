@@ -5,6 +5,7 @@ import '../login/login_page.dart';
 import '../menu_page/menu_desktop.dart';
 import '../menu_page/menu_mobil.dart';
 import '../menu_page/menu_tablet.dart';
+import '../profil/profil_page.dart';
 import '../raktarak/raktar_page.dart';
 
 class DrawerWidget extends StatelessWidget {
@@ -28,7 +29,15 @@ class DrawerWidget extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  _buildDrawerItem(Icons.person, "P R O F I L O M", context, () {}),
+                  _buildDrawerItem(Icons.person, "P R O F I L O M", context, () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => ProfilPage(
+
+                      )),
+                    );
+
+                  }),
                   _buildDrawerItem(Icons.inventory, "L E L T Á R", context, () {}),
                   _buildDrawerItem(Icons.store, "R A K T Á R A K", context, () {
                     Navigator.pushReplacement(
