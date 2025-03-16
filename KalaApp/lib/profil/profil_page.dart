@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kalaapp/widgets/drawer_widget.dart';
 import '../constants.dart';
+import '../models/eszkoz_model.dart';
 import '../widgets/profil_widget.dart';
 import '../widgets/eszkoz_widget.dart';
 
@@ -90,7 +91,16 @@ class _ProfilPageState extends State<ProfilPage> {
               child: ListView.builder(
                 itemCount: showCurrentDevices ? currentDevices.length : previousDevices.length,
                 itemBuilder: (context, index) {
-                  return EszkozWidget();
+                  return EszkozWidget(
+                    eszkoz: EszkozModel(
+                      eszkozNev: 'N/A',
+                      eszkozAzonosito: 'N/A',
+                      location: 'N/A',
+                      felelosNev: 'N/A',
+                      megjegyzesek: [],
+                      kepek: [], comment: 'loool',
+                    ),
+                  );
                 },
               ),
             ),

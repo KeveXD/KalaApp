@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants.dart'; // A globális színpaletta importálása
+import '../raktarak/eszkoz_view_model.dart';
 import '../widgets/eszkoz_widget.dart';
 import '../widgets/raktar_widget.dart';
 import '../widgets/profil_widget.dart'; // Az új ProfilWidget importálása
 
-class MenuDesktop extends StatefulWidget {
+class MenuDesktop extends ConsumerWidget {
   const MenuDesktop({Key? key}) : super(key: key);
 
   @override
-  State<MenuDesktop> createState() => _MenuDesktopState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final eszkozState = ref.watch(eszkozViewModelProvider);
 
-class _MenuDesktopState extends State<MenuDesktop> {
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: defaultBackgroundColor, // A háttér szín beállítása
       appBar: myAppBar, // AppBar a színpalettával
@@ -47,10 +46,14 @@ class _MenuDesktopState extends State<MenuDesktop> {
                     ),
                   ),
                   Expanded(
-                    child: ListView.builder(
-                      itemCount: 7,
+                    child: eszkozState.isLoading
+                        ? Center(child: CircularProgressIndicator())
+                        : ListView.builder(
+                      itemCount: eszkozState.eszkozok.length,
                       itemBuilder: (context, index) {
-                        return EszkozWidget();
+                        final eszkoz = eszkozState.eszkozok[index];
+                        return EszkozWidget(eszkoz: eszkoz,
+                        );
                       },
                     ),
                   ),
@@ -62,12 +65,7 @@ class _MenuDesktopState extends State<MenuDesktop> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
-
-                  ProfilWidget(
-
-                  ),
-
+                  ProfilWidget(),
 
                   Expanded(
                     child: Padding(

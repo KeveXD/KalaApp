@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import '../constants.dart';
+import '../models/eszkoz_model.dart'; // Feltételezve, hogy itt van az EszkozModel osztály
 
 class EszkozWidget extends StatefulWidget {
-  const EszkozWidget({Key? key}) : super(key: key);
+  final EszkozModel eszkoz; // Az eszközmodell példánya
+
+  const EszkozWidget({Key? key, required this.eszkoz}) : super(key: key);
 
   @override
   State<EszkozWidget> createState() => _EszkozWidgetState();
@@ -45,7 +48,7 @@ class _EszkozWidgetState extends State<EszkozWidget> {
                 child: const Icon(Icons.image, color: Colors.white), // Placeholder ikon
               ),
               title: Text(
-                "Eszköz neve",
+                widget.eszkoz.eszkozNev, // Eszköz neve a modellből
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -53,7 +56,7 @@ class _EszkozWidgetState extends State<EszkozWidget> {
                 ),
               ),
               subtitle: Text(
-                "Nála van: Balla Keve",
+                "Nála van: ${widget.eszkoz.felelosNev}", // Akinél van az eszköz
                 style: TextStyle(
                   fontSize: 14,
                   color: secondaryTextColor,
@@ -107,12 +110,18 @@ class _EszkozWidgetState extends State<EszkozWidget> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Eszköz száma: 264380012", style: TextStyle(fontWeight: FontWeight.bold, color: primaryTextColor)),
-                        Text("Eszköz neve: Kapa", style: TextStyle(color: primaryTextColor)),
-                        Text("Eszköz értéke: 20000 Ft", style: TextStyle(color: primaryTextColor)),
-                        Text("Eszköz helye: raktár2", style: TextStyle(color: primaryTextColor)),
-                        Text("Felelőse: Lajos", style: TextStyle(color: primaryTextColor)),
-                        Text("Kinél van most: Béla", style: TextStyle(color: primaryTextColor)),
+                        Text("Eszköz száma: ${widget.eszkoz.eszkozAzonosito}",
+                            style: TextStyle(fontWeight: FontWeight.bold, color: primaryTextColor)),
+                        Text("Eszköz neve: ${widget.eszkoz.eszkozNev}",
+                            style: TextStyle(color: primaryTextColor)),
+                        Text("Eszköz értéke: ${0} Ft",
+                            style: TextStyle(color: primaryTextColor)),
+                        Text("Eszköz helye: ${widget.eszkoz.location}",
+                            style: TextStyle(color: primaryTextColor)),
+                        Text("Felelőse: ${widget.eszkoz.felelosNev}",
+                            style: TextStyle(color: primaryTextColor)),
+                        Text("Kinél van most: ${widget.eszkoz.felelosNev}",
+                            style: TextStyle(color: primaryTextColor)),
                       ],
                     ),
                   ),
@@ -127,7 +136,7 @@ class _EszkozWidgetState extends State<EszkozWidget> {
                   ),
                   const SizedBox(height: 4),
                   Column(
-                    children: List.generate(5, (index) {
+                    children: widget.eszkoz.megjegyzesek.map((megjegyzes) {
                       return Container(
                         padding: const EdgeInsets.all(8.0),
                         margin: const EdgeInsets.only(bottom: 8.0),
@@ -136,18 +145,18 @@ class _EszkozWidgetState extends State<EszkozWidget> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          "${DateTime.now().subtract(Duration(days: index)).toString().split('.')[0]} - Példa megjegyzés ${index + 1}",
+                          " - ",
                           style: TextStyle(
                             fontSize: 14,
                             color: secondaryTextColor,
                           ),
                         ),
                       );
-                    }),
+                    }).toList(),
                   ),
                   const SizedBox(height: 12),
 
-
+                  // Képek lapozása
                   // Képek lapozása
                   Column(
                     children: [
@@ -194,6 +203,7 @@ class _EszkozWidgetState extends State<EszkozWidget> {
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 12),
 
                   // Megjegyzés hozzáadása gomb

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kalaapp/widgets/raktar_widget.dart';
 
 import '../constants.dart';
+import '../models/eszkoz_model.dart';
 import '../widgets/eszkoz_widget.dart';
 
 class MenuMobil extends StatefulWidget {
@@ -51,7 +52,17 @@ class _MenuMobilState extends State<MenuMobil> {
               child: ListView.builder(
                 itemCount: 4,
                 itemBuilder: (context, index) {
-                  return EszkozWidget();
+                  return EszkozWidget(
+                    eszkoz: EszkozModel(
+                      eszkozNev: 'N/A',
+                      eszkozAzonosito: 'N/A',
+                      location: 'N/A',
+                      felelosNev: 'N/A',
+                      megjegyzesek: [],
+                      kepek: [], comment: 'loool',
+                    ),
+                  );
+
                 },
               ),
             ),

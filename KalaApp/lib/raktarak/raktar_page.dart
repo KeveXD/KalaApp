@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants.dart';
+import '../models/eszkoz_model.dart';
 import '../widgets/raktar_widget.dart';
 import '../widgets/eszkoz_widget.dart';
 import '../widgets/talca_widget.dart';
@@ -131,7 +132,16 @@ class _RaktarPageState extends State<RaktarPage> {
               child: ListView.builder(
                 itemCount: 6,
                 itemBuilder: (context, index) {
-                  return EszkozWidget();
+                  return EszkozWidget(
+                    eszkoz: EszkozModel(
+                      eszkozNev: 'N/A',
+                      eszkozAzonosito: 'N/A',
+                      location: 'N/A',
+                      felelosNev: 'N/A',
+                      megjegyzesek: [],
+                      kepek: [], comment: 'loool',
+                    ),
+                  );
                 },
               ),
             ),
