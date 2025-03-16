@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants.dart';
 import '../login/register_page.dart';
-import '../login_viewmodel.dart';
+import 'login_viewmodel.dart';
 import '../widgets/drawer_widget.dart';
 
 class LoginPage extends ConsumerWidget {

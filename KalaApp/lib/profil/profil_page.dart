@@ -41,6 +41,7 @@ class _ProfilPageState extends State<ProfilPage> {
           children: [
             // ProfilWidget beépítése
             ProfilWidget(
+              showBeallitasok: true,
               name: 'Felhasználónév',
               role: 'Adminisztrátor',
               hasDebt: false,

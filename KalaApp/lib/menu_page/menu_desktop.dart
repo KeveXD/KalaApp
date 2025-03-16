@@ -62,15 +62,15 @@ class _MenuDesktopState extends State<MenuDesktop> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ProfilWidget az első konténerben
+
 
                   ProfilWidget(
                     name: "Keve",
-                    role: "Felhasználó",
+                    role: "sima felhasználó",
                     hasDebt: false,
                   ),
 
-                  // Második Container
+
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),

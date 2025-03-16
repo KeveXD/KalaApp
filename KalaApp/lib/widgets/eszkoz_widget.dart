@@ -11,6 +11,8 @@ class EszkozWidget extends StatefulWidget {
 class _EszkozWidgetState extends State<EszkozWidget> {
   bool isExpanded = false; // Lenyitás állapota
   bool isChecked = false; // Checkbox állapota
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +45,7 @@ class _EszkozWidgetState extends State<EszkozWidget> {
                 child: const Icon(Icons.image, color: Colors.white), // Placeholder ikon
               ),
               title: Text(
-                "Elem neve",
+                "Eszköz neve",
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -51,7 +53,7 @@ class _EszkozWidgetState extends State<EszkozWidget> {
                 ),
               ),
               subtitle: Text(
-                "Tulajdonos: Kovács Péter",
+                "Nála van: Balla Keve",
                 style: TextStyle(
                   fontSize: 14,
                   color: secondaryTextColor,
@@ -84,7 +86,7 @@ class _EszkozWidgetState extends State<EszkozWidget> {
             ),
           ),
 
-          // Lenyitható rész (megjegyzések + térkép placeholder)
+          // Lenyitható rész (megjegyzések + kép lapozás)
           if (isExpanded)
             Container(
               padding: const EdgeInsets.all(12),
@@ -96,9 +98,27 @@ class _EszkozWidgetState extends State<EszkozWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Megjegyzés rész
+                  Container(
+                    padding: const EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      color: inputFieldColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Eszköz száma: 264380012", style: TextStyle(fontWeight: FontWeight.bold, color: primaryTextColor)),
+                        Text("Eszköz neve: Kapa", style: TextStyle(color: primaryTextColor)),
+                        Text("Eszköz értéke: 20000 Ft", style: TextStyle(color: primaryTextColor)),
+                        Text("Eszköz helye: raktár2", style: TextStyle(color: primaryTextColor)),
+                        Text("Felelőse: Lajos", style: TextStyle(color: primaryTextColor)),
+                        Text("Kinél van most: Béla", style: TextStyle(color: primaryTextColor)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   Text(
-                    "Megjegyzés:",
+                    "Megjegyzések:",
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -106,24 +126,88 @@ class _EszkozWidgetState extends State<EszkozWidget> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    "Ez egy példa megjegyzés az adott elemhez.",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: secondaryTextColor,
-                    ),
+                  Column(
+                    children: List.generate(5, (index) {
+                      return Container(
+                        padding: const EdgeInsets.all(8.0),
+                        margin: const EdgeInsets.only(bottom: 8.0),
+                        decoration: BoxDecoration(
+                          color: inputFieldColor,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          "${DateTime.now().subtract(Duration(days: index)).toString().split('.')[0]} - Példa megjegyzés ${index + 1}",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: secondaryTextColor,
+                          ),
+                        ),
+                      );
+                    }),
                   ),
                   const SizedBox(height: 12),
 
-                  // Térkép placeholder
-                  Container(
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: inputBorderColor, // Placeholder szín
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Center(
-                      child: Icon(Icons.map, color: Colors.white, size: 40), // Placeholder ikon
+
+                  // Képek lapozása
+                  Column(
+                    children: [
+                      SizedBox(
+                        height: 120,
+                        child: PageView.builder(
+                          controller: _pageController,
+                          itemCount: 3,
+                          onPageChanged: (index) {
+                            setState(() {
+                              _currentPage = index;
+                            });
+                          },
+                          itemBuilder: (context, index) {
+                            return Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                              decoration: BoxDecoration(
+                                color: inputBorderColor, // Placeholder szín
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Center(
+                                child: Icon(Icons.photo_camera, color: Colors.white, size: 40),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Lapozás indikátor
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(3, (index) {
+                          return Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: _currentPage == index ? primaryTextColor : secondaryTextColor.withOpacity(0.5),
+                            ),
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Megjegyzés hozzáadása gomb
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: buttonColor,
+                        foregroundColor: buttonTextColor,
+                      ),
+                      onPressed: () {
+                        // Ide jöhet a megjegyzés hozzáadása funkció
+                      },
+                      child: const Text("Megjegyzés hozzáadása"),
                     ),
                   ),
                 ],

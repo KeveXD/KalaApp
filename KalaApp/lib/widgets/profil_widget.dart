@@ -5,12 +5,14 @@ class ProfilWidget extends StatelessWidget {
   final String name;
   final String role;
   final bool hasDebt;
+  final bool showBeallitasok;
 
   const ProfilWidget({
     Key? key,
     required this.name,
     required this.role,
     required this.hasDebt,
+    this.showBeallitasok = false,
   }) : super(key: key);
 
   @override
@@ -31,22 +33,37 @@ class ProfilWidget extends StatelessWidget {
             ),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.person, size: 50, color: iconColor), // Profil ikon
-              const SizedBox(height: 10),
-              Text(name, style: drawerTextColor),
-              Text(role, style: drawerTextColor),
-              const SizedBox(height: 10),
-              Text(
-                hasDebt ? "Tartozás van!" : "Nincs tartozás",
-                style: TextStyle(fontSize: 14, color: hasDebt ? Colors.red : Colors.green),
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.person, size: 50, color: iconColor), // Profil ikon
+                  const SizedBox(height: 10),
+                  Text(name, style: drawerTextColor),
+                  Text(role, style: drawerTextColor),
+                  const SizedBox(height: 10),
+                  Text(
+                    hasDebt ? "Tartozás van!" : "Nincs tartozás",
+                    style: TextStyle(fontSize: 14, color: hasDebt ? Colors.red : Colors.green),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+            if (showBeallitasok)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: IconButton(
+                  icon: Icon(Icons.settings, color: iconColor),
+                  onPressed: () {
+                    // Beállítások ikonra kattintás eseménykezelése
+                  },
+                ),
+              ),
+          ],
         ),
       ),
     );
