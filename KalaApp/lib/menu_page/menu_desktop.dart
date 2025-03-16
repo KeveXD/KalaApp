@@ -65,9 +65,7 @@ class _MenuDesktopState extends State<MenuDesktop> {
 
 
                   ProfilWidget(
-                    name: "Keve",
-                    role: "sima felhasználó",
-                    hasDebt: false,
+
                   ),
 
 

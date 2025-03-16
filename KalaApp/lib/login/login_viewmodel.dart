@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,6 +27,7 @@ class LoginViewModel extends StateNotifier<LoginState> {
   factory LoginViewModel() => _instance;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String? _email;
   String? _password;
 
@@ -43,6 +45,18 @@ class LoginViewModel extends StateNotifier<LoginState> {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
       _email = email;
       _password = password;
+
+      // Ellenőrizzük, hogy van-e már ilyen felhasználó a Firestore-ban
+      DocumentReference userDoc = _firestore.collection("Felhasznalok").doc(email);
+      DocumentSnapshot docSnapshot = await userDoc.get();
+
+      if (!docSnapshot.exists) {
+        // Ha a dokumentum nem létezik, nem csinálunk semmit, mert a dokumentum létrehozása a regisztrációnál történik
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Ez a felhasználó nem létezik a rendszerben.")),
+        );
+        return;
+      }
 
       Navigator.pushReplacement(
         context,
@@ -68,9 +82,10 @@ class LoginViewModel extends StateNotifier<LoginState> {
     required String email,
     required String password,
     required String confirmPassword,
+    required String username,
+    String? profilePictureUrl, // Ez a profilkép URL-je lesz
     required Function(String message) showSnackBar,
-  }) async
-  {
+  }) async {
     if (password != confirmPassword) {
       showSnackBar("A jelszavak nem egyeznek!");
       return;
@@ -80,6 +95,18 @@ class LoginViewModel extends StateNotifier<LoginState> {
 
     try {
       await _auth.createUserWithEmailAndPassword(email: email, password: password);
+
+      // Dokumentum létrehozása a "Felhasznalok" kollekcióban
+      DocumentReference userDoc = _firestore.collection("Felhasznalok").doc(email);
+      await userDoc.set({
+        "email": email,
+        "username": username,
+        "password": password, // Biztonsági okokból nem ajánlott a jelszót tárolni, csak bemutató célra
+        "role": "user",
+        "debt": false,
+        "profilePicture": profilePictureUrl, // A profilkép URL-je
+      });
+
       showSnackBar("Sikeres regisztráció!");
       state = LoginState();
     } on FirebaseAuthException catch (e) {

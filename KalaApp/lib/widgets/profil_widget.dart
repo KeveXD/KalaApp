@@ -1,29 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants.dart'; // Színpaletta importálása
+import '../profil/profil_view_model.dart';
 
-class ProfilWidget extends StatelessWidget {
-  final String name;
-  final String role;
-  final bool hasDebt;
+class ProfilWidget extends ConsumerWidget {
   final bool showBeallitasok;
 
-  const ProfilWidget({
-    Key? key,
-    required this.name,
-    required this.role,
-    required this.hasDebt,
-    this.showBeallitasok = false,
-  }) : super(key: key);
+  const ProfilWidget({Key? key, this.showBeallitasok = false}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profilState = ref.watch(profilViewModelProvider);
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
-        width: double.infinity, // Ez biztosítja, hogy mindig kitöltse a szélességet
+        width: double.infinity,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: cardBackgroundColor, // Lista háttérszíne
+          color: cardBackgroundColor,
           boxShadow: [
             BoxShadow(
               color: cardShadowColor.withOpacity(0.2),
@@ -37,17 +32,28 @@ class ProfilWidget extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
+              child: profilState == null
+                  ? Center(child: CircularProgressIndicator())
+                  : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.person, size: 50, color: iconColor), // Profil ikon
+                  // Profilkép, ha van
+                  profilState.profilePictureUrl != null
+                      ? CircleAvatar(
+                    radius: 50,
+                    backgroundImage: NetworkImage(profilState.profilePictureUrl!),
+                  )
+                      : Icon(Icons.person, size: 50, color: iconColor),
                   const SizedBox(height: 10),
-                  Text(name, style: drawerTextColor),
-                  Text(role, style: drawerTextColor),
+                  Text(profilState.name, style: drawerTextColor),
+                  Text(profilState.role, style: drawerTextColor),
                   const SizedBox(height: 10),
                   Text(
-                    hasDebt ? "Tartozás van!" : "Nincs tartozás",
-                    style: TextStyle(fontSize: 14, color: hasDebt ? Colors.red : Colors.green),
+                    profilState.hasDebt ? "Tartozás van!" : "Nincs tartozás",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: profilState.hasDebt ? Colors.red : Colors.green,
+                    ),
                   ),
                 ],
               ),
@@ -59,7 +65,11 @@ class ProfilWidget extends StatelessWidget {
                 child: IconButton(
                   icon: Icon(Icons.settings, color: iconColor),
                   onPressed: () {
-                    // Beállítások ikonra kattintás eseménykezelése
+                    // Navigálás beállításokhoz
+                   // Navigator.push(
+                   //   context,
+                    //  MaterialPageRoute(builder: (context) => SettingsPage()),
+                   // );
                   },
                 ),
               ),
@@ -69,3 +79,4 @@ class ProfilWidget extends StatelessWidget {
     );
   }
 }
+

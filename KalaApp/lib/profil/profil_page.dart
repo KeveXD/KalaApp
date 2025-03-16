@@ -42,9 +42,7 @@ class _ProfilPageState extends State<ProfilPage> {
             // ProfilWidget beépítése
             ProfilWidget(
               showBeallitasok: true,
-              name: 'Felhasználónév',
-              role: 'Adminisztrátor',
-              hasDebt: false,
+
             ),
             SizedBox(height: 20),
             // Váltó gomb

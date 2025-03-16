@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:file_picker/file_picker.dart';
 import '../constants.dart';
 import 'login_viewmodel.dart';
 
 class RegisterPage extends ConsumerWidget {
   RegisterPage({super.key});
 
+  final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
+  String? profilePicture;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,10 +40,22 @@ class RegisterPage extends ConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Felhasználónév
+                  TextField(
+                    controller: usernameController,
+                    decoration: InputDecoration(
+                      labelText: "Felhasználónév*",
+                      border: OutlineInputBorder(borderSide: BorderSide(color: inputBorderColor)),
+                      filled: true,
+                      fillColor: inputFieldColor,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  // Email
                   TextField(
                     controller: emailController,
                     decoration: InputDecoration(
-                      labelText: "E-mail",
+                      labelText: "E-mail*",
                       border: OutlineInputBorder(borderSide: BorderSide(color: inputBorderColor)),
                       filled: true,
                       fillColor: inputFieldColor,
@@ -48,10 +63,11 @@ class RegisterPage extends ConsumerWidget {
                     keyboardType: TextInputType.emailAddress,
                   ),
                   const SizedBox(height: 10),
+                  // Jelszó
                   TextField(
                     controller: passwordController,
                     decoration: InputDecoration(
-                      labelText: "Jelszó",
+                      labelText: "Jelszó*",
                       border: OutlineInputBorder(borderSide: BorderSide(color: inputBorderColor)),
                       filled: true,
                       fillColor: inputFieldColor,
@@ -59,15 +75,46 @@ class RegisterPage extends ConsumerWidget {
                     obscureText: true,
                   ),
                   const SizedBox(height: 10),
+                  // Jelszó megerősítése
                   TextField(
                     controller: confirmPasswordController,
                     decoration: InputDecoration(
-                      labelText: "Jelszó megerősítése",
+                      labelText: "Jelszó megerősítése*",
                       border: OutlineInputBorder(borderSide: BorderSide(color: inputBorderColor)),
                       filled: true,
                       fillColor: inputFieldColor,
                     ),
                     obscureText: true,
+                  ),
+                  const SizedBox(height: 10),
+                  // Profilkép feltöltés
+                  GestureDetector(
+                    onTap: () async {
+                      FilePickerResult? result = await FilePicker.platform.pickFiles(
+                        type: FileType.image,
+                      );
+                      if (result != null) {
+                        profilePicture = result.files.single.path;
+                      }
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                      decoration: BoxDecoration(
+                        color: inputFieldColor,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: inputBorderColor),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.camera_alt, color: iconColor),
+                          const SizedBox(width: 10),
+                          Text(
+                            profilePicture != null ? 'Profilkép kiválasztva' : 'Profilkép feltöltése',
+                            style: TextStyle(color: profilePicture != null ? Colors.green : Colors.black),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 20),
 
@@ -76,10 +123,22 @@ class RegisterPage extends ConsumerWidget {
                     onPressed: loginState.isLoading
                         ? null
                         : () {
+                      if (usernameController.text.isEmpty ||
+                          emailController.text.isEmpty ||
+                          passwordController.text.isEmpty ||
+                          confirmPasswordController.text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Minden kötelező mezőt ki kell tölteni!')),
+                        );
+                        return;
+                      }
+
                       ref.read(loginViewModelProvider.notifier).registerUser(
+                        username: usernameController.text,
                         email: emailController.text,
                         password: passwordController.text,
                         confirmPassword: confirmPasswordController.text,
+                       // profilePicture: profilePicture,
                         showSnackBar: (message) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(message)),
