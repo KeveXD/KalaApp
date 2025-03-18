@@ -1,27 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants.dart';
 import '../models/eszkoz_model.dart';
-import '../widgets/raktar_widget.dart';
+import '../raktarak/eszkoz_view_model.dart';
 import '../widgets/eszkoz_widget.dart';
 import '../widgets/talca_widget.dart';
-import 'new_eszkoz.dart'; // Az alsó tálca widget importálása
+import 'new_eszkoz.dart';
 
-class RaktarPage extends StatefulWidget {
+class RaktarPage extends ConsumerStatefulWidget {
   const RaktarPage({Key? key}) : super(key: key);
 
   @override
-  State<RaktarPage> createState() => _RaktarPageState();
+  ConsumerState<RaktarPage> createState() => _RaktarPageState();
 }
 
-class _RaktarPageState extends State<RaktarPage> {
+class _RaktarPageState extends ConsumerState<RaktarPage> {
   String? selectedWarehouse;
-  double minValue = 0;
-  double maxValue = 100000;
   String searchQuery = "";
-  bool isFilterExpanded = false; // Szűrőpanel állapota
+  bool isFilterExpanded = false;
+  bool isFilterApplied = false;
 
   @override
   Widget build(BuildContext context) {
+    final eszkozState = ref.watch(eszkozViewModelProvider);
+
+
+    List<EszkozModel> filteredEszkozok = eszkozState.eszkozok.where((eszkoz) {
+      return (!isFilterApplied ||
+          (eszkoz.eszkozNev.toLowerCase().contains(searchQuery.toLowerCase()) &&
+              (selectedWarehouse == null || eszkoz.location == selectedWarehouse)));
+    }).toList();
+
     return Scaffold(
       backgroundColor: defaultBackgroundColor,
       appBar: myAppBar,
@@ -70,56 +79,29 @@ class _RaktarPageState extends State<RaktarPage> {
                             },
                           ),
                           const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  decoration: const InputDecoration(
-                                    labelText: "Min. érték",
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      minValue = double.tryParse(value) ?? 0;
-                                    });
-                                  },
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: TextField(
-                                  decoration: const InputDecoration(
-                                    labelText: "Max. érték",
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      maxValue = double.tryParse(value) ?? 100000;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
                           DropdownButtonFormField<String>(
                             decoration: const InputDecoration(
                               labelText: "Raktár kiválasztása",
                               border: OutlineInputBorder(),
                             ),
-                            items: ["Raktár 1", "Raktár 2", "Raktár 3"]
-                                .map((warehouse) => DropdownMenuItem(
+                            items: eszkozState.raktarakNevei.map((warehouse) => DropdownMenuItem(
                               value: warehouse,
                               child: Text(warehouse),
-                            ))
-                                .toList(),
+                            )).toList(),
                             onChanged: (value) {
                               setState(() {
                                 selectedWarehouse = value;
                               });
                             },
+                          ),
+                          const SizedBox(height: 10),
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                isFilterApplied = true;
+                              });
+                            },
+                            child: const Text("Szűrés alkalmazása"),
                           ),
                         ],
                       ),
@@ -129,19 +111,15 @@ class _RaktarPageState extends State<RaktarPage> {
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: ListView.builder(
-                itemCount: 6,
+              child: eszkozState.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : filteredEszkozok.isEmpty
+                  ? const Center(child: Text("Nincsenek elérhető eszközök."))
+                  : ListView.builder(
+                itemCount: filteredEszkozok.length,
                 itemBuilder: (context, index) {
-                  return EszkozWidget(
-                    eszkoz: EszkozModel(
-                      eszkozNev: 'N/A',
-                      eszkozAzonosito: 'N/A',
-                      location: 'N/A',
-                      felelosNev: 'N/A',
-                      megjegyzesek: [],
-                      kepek: [], comment: 'loool',
-                    ),
-                  );
+                  final eszkoz = filteredEszkozok[index];
+                  return EszkozWidget(eszkoz: eszkoz);
                 },
               ),
             ),
@@ -153,8 +131,7 @@ class _RaktarPageState extends State<RaktarPage> {
           TalcaItem(
             icon: Icons.home,
             onTap: () {
-              print("Navigáció a kezdőképernyőre");
-              // Navigator.pushNamed(context, "/home"); // Ha van route hozzá
+              Navigator.pushNamed(context, "/home");
             },
           ),
           TalcaItem(
@@ -166,8 +143,7 @@ class _RaktarPageState extends State<RaktarPage> {
           TalcaItem(
             icon: Icons.person,
             onTap: () {
-              print("Profil megnyitása");
-              // Navigator.pushNamed(context, "/profile"); // Ha van route hozzá
+              Navigator.pushNamed(context, "/profile");
             },
           ),
         ],
