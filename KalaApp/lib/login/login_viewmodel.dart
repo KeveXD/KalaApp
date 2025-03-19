@@ -6,19 +6,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../menu_page/menu_desktop.dart';
 import '../../menu_page/menu_mobil.dart';
 import '../../menu_page/menu_tablet.dart';
+import '../../models/felhasznalo_model.dart'; // FelhasznaloModel importálása
 import '../../utils/responsive_layout.dart';
 
 class LoginState {
   final bool isLoading;
   final String? errorMessage;
-  final String? email;
-  final String? password;
+  final FelhasznaloModel? felhasznalo; // Most már az egész felhasználói modellt tároljuk
 
   LoginState({
     this.isLoading = false,
     this.errorMessage,
-    this.email,
-    this.password,
+    this.felhasznalo,
   });
 }
 
@@ -28,8 +27,6 @@ class LoginViewModel extends StateNotifier<LoginState> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  String? _email;
-  String? _password;
 
   LoginViewModel._internal() : super(LoginState());
 
@@ -37,27 +34,31 @@ class LoginViewModel extends StateNotifier<LoginState> {
     required String email,
     required String password,
     required BuildContext context,
-  }) async
-  {
+  }) async {
     state = LoginState(isLoading: true);
 
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
-      _email = email;
-      _password = password;
 
-      // Ellenőrizzük, hogy van-e már ilyen felhasználó a Firestore-ban
+      // Felhasználói adatok lekérése Firestore-ból
       DocumentReference userDoc = _firestore.collection("Felhasznalok").doc(email);
       DocumentSnapshot docSnapshot = await userDoc.get();
 
       if (!docSnapshot.exists) {
-        // Ha a dokumentum nem létezik, nem csinálunk semmit, mert a dokumentum létrehozása a regisztrációnál történik
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Ez a felhasználó nem létezik a rendszerben.")),
         );
+        state = LoginState(errorMessage: "Felhasználó nem található");
         return;
       }
 
+      // Felhasználó betöltése a Firestore-ból FelhasznaloModel-ként
+      FelhasznaloModel felhasznalo = FelhasznaloModel.fromJson(docSnapshot.data() as Map<String, dynamic>);
+
+      // Beállítjuk a state-et a bejelentkezett felhasználóval
+      state = LoginState(felhasznalo: felhasznalo);
+
+      // Navigáció a főoldalra
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -68,12 +69,10 @@ class LoginViewModel extends StateNotifier<LoginState> {
           ),
         ),
       );
-
-      state = LoginState(email: _email, password: _password);
     } on FirebaseAuthException catch (e) {
       state = LoginState(errorMessage: e.message);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Hiba: \${e.message}")),
+        SnackBar(content: Text("Hiba: ${e.message}")),
       );
     }
   }
@@ -83,7 +82,7 @@ class LoginViewModel extends StateNotifier<LoginState> {
     required String password,
     required String confirmPassword,
     required String username,
-    String? profilePictureUrl, // Ez a profilkép URL-je lesz
+    String? profilePictureUrl,
     required Function(String message) showSnackBar,
   }) async {
     if (password != confirmPassword) {
@@ -96,27 +95,27 @@ class LoginViewModel extends StateNotifier<LoginState> {
     try {
       await _auth.createUserWithEmailAndPassword(email: email, password: password);
 
-      // Dokumentum létrehozása a "Felhasznalok" kollekcióban
-      DocumentReference userDoc = _firestore.collection("Felhasznalok").doc(email);
-      await userDoc.set({
-        "email": email,
-        "username": username,
-        "password": password, // Biztonsági okokból nem ajánlott a jelszót tárolni, csak bemutató célra
-        "role": "user",
-        "debt": false,
-        "profilePicture": profilePictureUrl, // A profilkép URL-je
-      });
+      // Új felhasználó létrehozása FelhasznaloModel-ként
+      FelhasznaloModel newUser = FelhasznaloModel(
+        username: username,
+        email: email,
+        role: "user",
+        debt: false,
+        profilePicture: profilePictureUrl, password: '',
+      );
+
+      // Firestore mentés
+      await _firestore.collection("Felhasznalok").doc(email).set(newUser.toJson());
 
       showSnackBar("Sikeres regisztráció!");
       state = LoginState();
     } on FirebaseAuthException catch (e) {
       state = LoginState(errorMessage: e.message);
-      showSnackBar("Hiba: \${e.message}");
+      showSnackBar("Hiba: ${e.message}");
     }
   }
 
-  String? get email => _email;
-  String? get password => _password;
+  FelhasznaloModel? get felhasznalo => state.felhasznalo;
 }
 
 final loginViewModelProvider = StateNotifierProvider<LoginViewModel, LoginState>((ref) {

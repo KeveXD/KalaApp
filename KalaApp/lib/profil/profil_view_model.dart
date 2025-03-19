@@ -29,7 +29,7 @@ class ProfilViewModel extends StateNotifier<ProfilState?> {
 
   Future<void> fetchProfilData() async {
     final loginState = ref.watch(loginViewModelProvider); // Elérjük a LoginViewModel státuszt
-    final email = loginState.email;
+    final email = loginState.felhasznalo?.email;
 
     if (email == null) return; // Ha nincs bejelentkezve, nem tudunk adatokat kérni
 

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants.dart';
 import '../models/eszkoz_model.dart';
-import '../raktarak/eszkoz_view_model.dart';
 import '../widgets/eszkoz_widget.dart';
 import '../widgets/talca_widget.dart';
+import 'eszkoz_view_model.dart';
 import 'new_eszkoz.dart';
 
 class RaktarPage extends ConsumerStatefulWidget {
@@ -28,7 +28,7 @@ class _RaktarPageState extends ConsumerState<RaktarPage> {
     List<EszkozModel> filteredEszkozok = eszkozState.eszkozok.where((eszkoz) {
       return (!isFilterApplied ||
           (eszkoz.eszkozNev.toLowerCase().contains(searchQuery.toLowerCase()) &&
-              (selectedWarehouse == null || eszkoz.location == selectedWarehouse)));
+              (selectedWarehouse == null || eszkoz.lokacio == selectedWarehouse)));
     }).toList();
 
     return Scaffold(

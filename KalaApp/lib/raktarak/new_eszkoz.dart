@@ -1,24 +1,25 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // Csak ezt használd!
-import 'dart:typed_data'; // Webes fájlokhoz szükséges
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:typed_data';
 import '../constants.dart';
 import 'eszkoz_view_model.dart';
 
-Uint8List? _webImage; // Webes kép tárolása
+Uint8List? _webImage;
 
-class NewEszkoz extends ConsumerWidget {  // Átírás ConsumerWidget-re
+class NewEszkozDialog extends ConsumerWidget {
   final TextEditingController _idController = TextEditingController();
-  final TextEditingController _nameController = TextEditingController(); // Eszköz neve
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _responsibleController = TextEditingController();
   final TextEditingController _commentController = TextEditingController();
+  final TextEditingController _valueController = TextEditingController();
   String? _selectedLocation;
   File? _image;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {  // Átadtuk a WidgetRef-ot
-    final state = ref.watch(eszkozViewModelProvider); // ref.watch()
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(eszkozViewModelProvider);
 
     return Dialog(
       backgroundColor: defaultBackgroundColor,
@@ -31,14 +32,16 @@ class NewEszkoz extends ConsumerWidget {  // Átírás ConsumerWidget-re
             children: [
               Text("Új eszköz hozzáadása", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: primaryTextColor)),
               const SizedBox(height: 10),
-              _buildTextField("Eszköz neve *", _nameController, true, Colors.red),
-              _buildTextField("Eszköz azonosító *", _idController, true, Colors.red),
+              _buildTextField("Eszköz neve *", _nameController, false, Colors.red),
+              _buildTextField("Eszköz azonosító *", _idController, false, Colors.red),
               _buildDropdownField("Lokáció", state.raktarakNevei),
+              _buildTextField("Érték", _valueController, true),
               _buildTextField("Felelős neve", _responsibleController, false),
               _buildTextField("Megjegyzés", _commentController, false, null, 3),
+
               const SizedBox(height: 10),
               _webImage != null
-                  ? Image.memory(_webImage!, height: 100) // Webes kép
+                  ? Image.memory(_webImage!, height: 100)
                   : Text("Nincs kiválasztott kép"),
               TextButton.icon(
                 icon: Icon(Icons.image, color: iconColor),
@@ -58,19 +61,27 @@ class NewEszkoz extends ConsumerWidget {  // Átírás ConsumerWidget-re
                     style: ElevatedButton.styleFrom(backgroundColor: buttonColor),
                     child: Text("Hozzáadás", style: TextStyle(color: buttonTextColor)),
                     onPressed: () {
-                      // Csak az első két mezőt ellenőrizzük
-                      if (_idController.text.isNotEmpty && _nameController.text.isNotEmpty) {
+                      if (_idController.text.isNotEmpty && _nameController.text.isNotEmpty && _valueController.text.isNotEmpty) {
+                        final double? ertek = double.tryParse(_valueController.text);
+                        if (ertek == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text("Érvényes számot adj meg az érték mezőben!"),
+                          ));
+                          return;
+                        }
+
                         ref.read(eszkozViewModelProvider.notifier).addNewEszkoz(
                           eszkozAzonosito: _idController.text,
                           eszkozNev: _nameController.text,
-                          location: _selectedLocation ?? '',  // Ha nem választottunk lokációt, üres string
+                          lokacio: _selectedLocation ?? '',
                           felelosNev: _responsibleController.text,
-                          comment: _commentController.text,
+                          komment: _commentController.text,
+                          ertek: ertek,
                         );
                         Navigator.of(context).pop();
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text("Kötelező kitölteni a kötelező mezőket!"),
+                          content: Text("Kötelező kitölteni a csillagozott mezőket!"),
                         ));
                       }
                     },
@@ -96,7 +107,7 @@ class NewEszkoz extends ConsumerWidget {  // Átírás ConsumerWidget-re
           filled: true,
           fillColor: inputFieldColor,
         ),
-        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+        keyboardType: isNumber ? TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
         maxLines: maxLines,
       ),
     );
@@ -105,8 +116,8 @@ class NewEszkoz extends ConsumerWidget {  // Átírás ConsumerWidget-re
   Widget _buildDropdownField(String label, List<String> options) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
-      child: options.isEmpty // Ellenőrizd, hogy a lista nem üres
-          ? CircularProgressIndicator()  // Ha üres, mutass egy töltést
+      child: options.isEmpty
+          ? CircularProgressIndicator()
           : DropdownButtonFormField<String>(
         value: _selectedLocation,
         decoration: InputDecoration(
@@ -123,12 +134,11 @@ class NewEszkoz extends ConsumerWidget {  // Átírás ConsumerWidget-re
           );
         }).toList(),
         onChanged: (newValue) {
-          _selectedLocation = newValue; // Az állapot itt változik
+          _selectedLocation = newValue;
         },
       ),
     );
   }
-
 
   Future<void> _pickImage() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -136,7 +146,7 @@ class NewEszkoz extends ConsumerWidget {  // Átírás ConsumerWidget-re
     );
 
     if (result != null) {
-      _webImage = result.files.first.bytes; // Webes adat
+      _webImage = result.files.first.bytes;
     }
   }
 }
@@ -147,7 +157,7 @@ void showNewEszkozDialog(BuildContext context) {
     builder: (context) => Dialog(
       child: Container(
         height: MediaQuery.of(context).size.height * 0.75,
-        child: NewEszkoz(),
+        child: NewEszkozDialog(),
       ),
     ),
   );

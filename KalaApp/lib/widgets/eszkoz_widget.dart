@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../constants.dart';
-import '../models/eszkoz_model.dart'; // Feltételezve, hogy itt van az EszkozModel osztály
+import '../models/eszkoz_model.dart';
 
 class EszkozWidget extends StatefulWidget {
-  final EszkozModel eszkoz; // Az eszközmodell példánya
+  final EszkozModel eszkoz;
 
   const EszkozWidget({Key? key, required this.eszkoz}) : super(key: key);
 
@@ -12,10 +12,11 @@ class EszkozWidget extends StatefulWidget {
 }
 
 class _EszkozWidgetState extends State<EszkozWidget> {
-  bool isExpanded = false; // Lenyitás állapota
-  bool isChecked = false; // Checkbox állapota
+  bool isExpanded = false;
+  bool isChecked = false;
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  final TextEditingController _megjegyzesController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +24,7 @@ class _EszkozWidgetState extends State<EszkozWidget> {
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Column(
         children: [
-          // Fő listaelem (összecsukott állapot)
+          // Fő listaelem
           Container(
             decoration: BoxDecoration(
               color: cardBackgroundColor,
@@ -42,13 +43,13 @@ class _EszkozWidgetState extends State<EszkozWidget> {
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: inputBorderColor, // Placeholder szín
+                  color: inputBorderColor,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.image, color: Colors.white), // Placeholder ikon
+                child: const Icon(Icons.image, color: Colors.white),
               ),
               title: Text(
-                widget.eszkoz.eszkozNev, // Eszköz neve a modellből
+                widget.eszkoz.eszkozNev,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -56,7 +57,7 @@ class _EszkozWidgetState extends State<EszkozWidget> {
                 ),
               ),
               subtitle: Text(
-                "Nála van: ${widget.eszkoz.felelosNev}", // Akinél van az eszköz
+                "Nála van: ${widget.eszkoz.felelosNev}",
                 style: TextStyle(
                   fontSize: 14,
                   color: secondaryTextColor,
@@ -89,7 +90,7 @@ class _EszkozWidgetState extends State<EszkozWidget> {
             ),
           ),
 
-          // Lenyitható rész (megjegyzések + kép lapozás)
+          // Lenyitható rész
           if (isExpanded)
             Container(
               padding: const EdgeInsets.all(12),
@@ -114,18 +115,20 @@ class _EszkozWidgetState extends State<EszkozWidget> {
                             style: TextStyle(fontWeight: FontWeight.bold, color: primaryTextColor)),
                         Text("Eszköz neve: ${widget.eszkoz.eszkozNev}",
                             style: TextStyle(color: primaryTextColor)),
-                        Text("Eszköz értéke: ${0} Ft",
+                        Text("Eszköz értéke: ${widget.eszkoz.ertek ?? 0} Ft",
                             style: TextStyle(color: primaryTextColor)),
-                        Text("Eszköz helye: ${widget.eszkoz.location}",
+                        Text("Eszköz helye: ${widget.eszkoz.lokacio}",
                             style: TextStyle(color: primaryTextColor)),
                         Text("Felelőse: ${widget.eszkoz.felelosNev}",
                             style: TextStyle(color: primaryTextColor)),
-                        Text("Kinél van most: ${widget.eszkoz.felelosNev}",
+                        Text("Kinél van most: ${widget.eszkoz.kinelVan}",
                             style: TextStyle(color: primaryTextColor)),
                       ],
                     ),
                   ),
                   const SizedBox(height: 12),
+
+                  // Megjegyzések lista
                   Text(
                     "Megjegyzések:",
                     style: TextStyle(
@@ -145,7 +148,7 @@ class _EszkozWidgetState extends State<EszkozWidget> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          " - ",
+                          "${megjegyzes.felhasznaloNev}: ${megjegyzes.megjegyzes}",
                           style: TextStyle(
                             fontSize: 14,
                             color: secondaryTextColor,
@@ -154,9 +157,46 @@ class _EszkozWidgetState extends State<EszkozWidget> {
                       );
                     }).toList(),
                   ),
+
+                  // Megjegyzés hozzáadása mező és küldés gomb
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _megjegyzesController,
+                          decoration: InputDecoration(
+                            hintText: "Írj egy megjegyzést...",
+                            hintStyle: TextStyle(color: secondaryTextColor),
+                            filled: true,
+                            fillColor: inputFieldColor,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: BorderSide.none,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          ),
+                          style: TextStyle(color: primaryTextColor),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: buttonColor,
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.send, color: Colors.white),
+                          onPressed: () {
+                            _sendMegjegyzes();
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+
                   const SizedBox(height: 12),
 
-                  // Képek lapozása
                   // Képek lapozása
                   Column(
                     children: [
@@ -206,25 +246,20 @@ class _EszkozWidgetState extends State<EszkozWidget> {
 
                   const SizedBox(height: 12),
 
-                  // Megjegyzés hozzáadása gomb
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: buttonColor,
-                        foregroundColor: buttonTextColor,
-                      ),
-                      onPressed: () {
-                        // Ide jöhet a megjegyzés hozzáadása funkció
-                      },
-                      child: const Text("Megjegyzés hozzáadása"),
-                    ),
-                  ),
+
                 ],
               ),
             ),
         ],
       ),
     );
+  }
+
+  void _sendMegjegyzes() {
+    String megjegyzesSzoveg = _megjegyzesController.text.trim();
+    if (megjegyzesSzoveg.isNotEmpty) {
+      print("Megjegyzés elküldve: $megjegyzesSzoveg");
+      _megjegyzesController.clear();
+    }
   }
 }

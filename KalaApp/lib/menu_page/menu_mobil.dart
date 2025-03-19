@@ -56,10 +56,10 @@ class _MenuMobilState extends State<MenuMobil> {
                     eszkoz: EszkozModel(
                       eszkozNev: 'N/A',
                       eszkozAzonosito: 'N/A',
-                      location: 'N/A',
+                      lokacio: 'N/A',
                       felelosNev: 'N/A',
                       megjegyzesek: [],
-                      kepek: [], comment: 'loool',
+                      kepek: [], komment: 'loool',
                     ),
                   );
 
