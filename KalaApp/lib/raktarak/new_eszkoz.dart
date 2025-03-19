@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kalaapp/models/eszkoz_model.dart';
 import 'dart:typed_data';
 import '../constants.dart';
 import 'eszkoz_view_model.dart';
@@ -70,13 +71,17 @@ class NewEszkozDialog extends ConsumerWidget {
                           return;
                         }
 
-                        ref.read(eszkozViewModelProvider.notifier).addNewEszkoz(
-                          eszkozAzonosito: _idController.text,
+                        ref.read(eszkozViewModelProvider.notifier)
+                            .addNewEszkoz(EszkozModel(
                           eszkozNev: _nameController.text,
+                          eszkozAzonosito: _idController.text,
                           lokacio: _selectedLocation ?? '',
                           felelosNev: _responsibleController.text,
                           komment: _commentController.text,
                           ertek: ertek,
+                        )
+
+
                         );
                         Navigator.of(context).pop();
                       } else {

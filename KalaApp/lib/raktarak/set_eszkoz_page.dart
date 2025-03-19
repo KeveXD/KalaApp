@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants.dart';
 import '../models/eszkoz_model.dart';
 import '../models/megjegyzes_model.dart';
+import 'eszkoz_view_model.dart';
 
-class SetEszkozPage extends StatefulWidget {
+class SetEszkozPage extends ConsumerStatefulWidget {
   final EszkozModel eszkoz;
 
   const SetEszkozPage({Key? key, required this.eszkoz}) : super(key: key);
@@ -12,7 +14,7 @@ class SetEszkozPage extends StatefulWidget {
   _SetEszkozPageState createState() => _SetEszkozPageState();
 }
 
-class _SetEszkozPageState extends State<SetEszkozPage> {
+class _SetEszkozPageState extends ConsumerState<SetEszkozPage> {
   late TextEditingController nevController;
   late TextEditingController azonositoController;
   late TextEditingController lokacioController;
@@ -38,7 +40,7 @@ class _SetEszkozPageState extends State<SetEszkozPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: appBarColor,
-        title: const Text("Eszköz szerkesztése"),
+        title: const Text("Eszköz szerkesztése", style: TextStyle(color: Colors.white)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -54,7 +56,7 @@ class _SetEszkozPageState extends State<SetEszkozPage> {
             _buildMegjegyzesek(),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _mentes,
+              onPressed: () => _mentes(ref),
               style: ElevatedButton.styleFrom(
                 backgroundColor: buttonColor,
                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
@@ -101,7 +103,7 @@ class _SetEszkozPageState extends State<SetEszkozPage> {
               title: Text(megjegyzes.megjegyzes, style: TextStyle(color: primaryTextColor)),
               subtitle: Text(megjegyzes.felhasznaloNev, style: TextStyle(color: secondaryTextColor)),
               trailing: IconButton(
-                icon: Icon(Icons.delete, color: Colors.red),
+                icon: const Icon(Icons.delete, color: Colors.red),
                 onPressed: () {
                   setState(() {
                     megjegyzesek.removeAt(index);
@@ -115,7 +117,9 @@ class _SetEszkozPageState extends State<SetEszkozPage> {
     );
   }
 
-  void _mentes() {
+  void _mentes(WidgetRef ref) async {
+    final eszkozViewModel = ref.read(eszkozViewModelProvider.notifier);
+
     EszkozModel frissitettEszkoz = widget.eszkoz.copyWith(
       eszkozNev: nevController.text,
       eszkozAzonosito: azonositoController.text,
@@ -126,6 +130,10 @@ class _SetEszkozPageState extends State<SetEszkozPage> {
       megjegyzesek: megjegyzesek,
     );
 
-    Navigator.pop(context, frissitettEszkoz);
+    await eszkozViewModel.addNewEszkoz(frissitettEszkoz);
+
+    if (mounted) {
+      Navigator.pop(context, frissitettEszkoz);
+    }
   }
 }

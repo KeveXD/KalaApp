@@ -63,41 +63,19 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
     }
   }
 
-  Future<void> addNewEszkoz({
-    required String eszkozAzonosito,
-    required String eszkozNev,
-    String? lokacio,
-    String? felelosNev,
-    String? komment,
-    String? kinelVan,
-    double? ertek,
-    List<MegjegyzesModel> megjegyzesek = const [], // Frissítve!
-    List<String> kepek = const [],
-    List<Map<String, String>> elozmenyek = const [],
-  }) async
-  {
+  Future<void> addNewEszkoz(EszkozModel ujEszkoz) async {
     try {
-      EszkozModel ujEszkoz = EszkozModel(
-        eszkozAzonosito: eszkozAzonosito,
-        eszkozNev: eszkozNev,
-        lokacio: lokacio,
-        felelosNev: felelosNev,
-        komment: komment,
-        kinelVan: kinelVan,
-        ertek: ertek,
-        megjegyzesek: megjegyzesek, // Most már MegjegyzesModel típusú lista
-        kepek: kepek,
-        elozmenyek: elozmenyek,
-      );
+      await _firestore.collection("Eszkozok").doc(ujEszkoz.eszkozAzonosito).set(ujEszkoz.toJson());
 
-      await _firestore.collection("Eszkozok").doc(eszkozAzonosito).set(ujEszkoz.toJson());
-
-      fetchEszkozok();
+      // Újra lekérjük az eszközök listáját, hogy frissüljön az állapot
+      await fetchEszkozok();
       print("Eszköz hozzáadva!");
     } catch (e) {
       print("Hiba az eszköz hozzáadása során: $e");
     }
   }
+
+
 
   Future<void> fetchEszkozok() async
   {
