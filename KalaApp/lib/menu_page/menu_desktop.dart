@@ -4,7 +4,7 @@ import '../constants.dart'; // A globális színpaletta importálása
 import '../raktarak/eszkoz_view_model.dart';
 import '../widgets/eszkoz_widget.dart';
 import '../widgets/raktar_widget.dart';
-import '../widgets/profil_widget.dart'; // Az új ProfilWidget importálása
+import '../widgets/profil_widget.dart';
 
 class MenuDesktop extends ConsumerWidget {
   const MenuDesktop({Key? key}) : super(key: key);

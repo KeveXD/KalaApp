@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../login/login_viewmodel.dart';
 import '../models/eszkoz_model.dart';
-import '../models/megjegyzes_model.dart'; // Importáljuk az új modellt
+import '../models/megjegyzes_model.dart';
 
 class EszkozState {
   final List<EszkozModel> eszkozok;
@@ -37,6 +37,8 @@ class EszkozState {
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
+
+
 }
 
 class EszkozViewModel extends StateNotifier<EszkozState> {
@@ -190,8 +192,6 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
       return null;
     }
   }
-
-
 }
 
 final eszkozViewModelProvider = StateNotifierProvider<EszkozViewModel, EszkozState>((ref) {

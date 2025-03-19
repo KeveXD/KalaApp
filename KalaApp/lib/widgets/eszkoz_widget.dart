@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as riverpod;
+import 'package:provider/provider.dart';
 import '../constants.dart';
 import '../models/eszkoz_model.dart';
+import '../models/megjegyzes_model.dart';
+import '../raktarak/eszkoz_view_model.dart';
 
 class EszkozWidget extends StatefulWidget {
   final EszkozModel eszkoz;
@@ -112,7 +116,8 @@ class _EszkozWidgetState extends State<EszkozWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text("Eszköz száma: ${widget.eszkoz.eszkozAzonosito}",
-                            style: TextStyle(fontWeight: FontWeight.bold, color: primaryTextColor)),
+                            style: TextStyle(fontWeight: FontWeight.bold,
+                                color: primaryTextColor)),
                         Text("Eszköz neve: ${widget.eszkoz.eszkozNev}",
                             style: TextStyle(color: primaryTextColor)),
                         Text("Eszköz értéke: ${widget.eszkoz.ertek ?? 0} Ft",
@@ -148,7 +153,8 @@ class _EszkozWidgetState extends State<EszkozWidget> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          "${megjegyzes.felhasznaloNev}: ${megjegyzes.megjegyzes}",
+                          "${megjegyzes.felhasznaloNev}: ${megjegyzes
+                              .megjegyzes}",
                           style: TextStyle(
                             fontSize: 14,
                             color: secondaryTextColor,
@@ -174,7 +180,8 @@ class _EszkozWidgetState extends State<EszkozWidget> {
                               borderRadius: BorderRadius.circular(20),
                               borderSide: BorderSide.none,
                             ),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
                           ),
                           style: TextStyle(color: primaryTextColor),
                         ),
@@ -185,81 +192,105 @@ class _EszkozWidgetState extends State<EszkozWidget> {
                           color: buttonColor,
                           shape: BoxShape.circle,
                         ),
-                        child: IconButton(
-                          icon: const Icon(Icons.send, color: Colors.white),
-                          onPressed: () {
-                            _sendMegjegyzes();
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // Képek lapozása
-                  Column(
-                    children: [
-                      SizedBox(
-                        height: 120,
-                        child: PageView.builder(
-                          controller: _pageController,
-                          itemCount: 3,
-                          onPageChanged: (index) {
-                            setState(() {
-                              _currentPage = index;
-                            });
-                          },
-                          itemBuilder: (context, index) {
-                            return Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                              decoration: BoxDecoration(
-                                color: inputBorderColor, // Placeholder szín
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Center(
-                                child: Icon(Icons.photo_camera, color: Colors.white, size: 40),
-                              ),
+                        child: riverpod.Consumer(
+                          builder: (context, ref, _) {
+                            return IconButton(
+                              icon: const Icon(Icons.send, color: Colors.white),
+                              onPressed: () {
+                                _sendMegjegyzes(ref); // Itt most ref-et használunk
+                              },
                             );
                           },
                         ),
                       ),
-                      const SizedBox(height: 8),
-
-                      // Lapozás indikátor
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(3, (index) {
-                          return Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: _currentPage == index ? primaryTextColor : secondaryTextColor.withOpacity(0.5),
-                            ),
-                          );
-                        }),
-                      ),
                     ],
                   ),
 
+
+
                   const SizedBox(height: 12),
+
+//fontos
+                  SizedBox(
+                    height: 120,
+                    child: PageView.builder(
+                      controller: _pageController,
+                      itemCount: 3,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentPage = index;
+                        });
+                      },
+                      itemBuilder: (context, index) {
+                        return Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                          decoration: BoxDecoration(
+                            color: inputBorderColor, // Placeholder szín
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Center(
+                            child: Icon(Icons.photo_camera, color: Colors.white, size: 40),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Lapozás indikátor
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(3, (index) {
+                      return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: _currentPage == index ? primaryTextColor : secondaryTextColor.withOpacity(0.5),
+                        ),
+                      );
+                    }),
+                  ),
+                ],
+              ),
+            ),
+    //fontos
 
 
                 ],
               ),
-            ),
-        ],
-      ),
+
+
+
+
+
+
+
+
     );
   }
 
-  void _sendMegjegyzes() {
+  void _sendMegjegyzes(riverpod.WidgetRef ref) async {
     String megjegyzesSzoveg = _megjegyzesController.text.trim();
-    if (megjegyzesSzoveg.isNotEmpty) {
-      print("Megjegyzés elküldve: $megjegyzesSzoveg");
-      _megjegyzesController.clear();
+    if (megjegyzesSzoveg.isEmpty) return;
+
+    try {
+      // A createMegjegyzes metódus elérése az eszkozViewModelProvider segítségével
+      final ujMegjegyzes = await ref.read(eszkozViewModelProvider.notifier)
+          .createMegjegyzes(megjegyzesSzoveg, ref);
+
+      if (ujMegjegyzes != null) {
+        // Megjegyzés hozzáadása az adott eszközhöz
+        await ref.read(eszkozViewModelProvider.notifier).addMegjegyzesToEszkoz(
+            widget.eszkoz, ujMegjegyzes);
+
+        // TextField ürítése
+        _megjegyzesController.clear();
+      }
+    } catch (e) {
+      print("Hiba a megjegyzés küldésekor: $e");
     }
   }
 }
+
