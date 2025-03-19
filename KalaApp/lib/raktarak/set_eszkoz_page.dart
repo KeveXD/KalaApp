@@ -1,0 +1,131 @@
+import 'package:flutter/material.dart';
+import '../constants.dart';
+import '../models/eszkoz_model.dart';
+import '../models/megjegyzes_model.dart';
+
+class SetEszkozPage extends StatefulWidget {
+  final EszkozModel eszkoz;
+
+  const SetEszkozPage({Key? key, required this.eszkoz}) : super(key: key);
+
+  @override
+  _SetEszkozPageState createState() => _SetEszkozPageState();
+}
+
+class _SetEszkozPageState extends State<SetEszkozPage> {
+  late TextEditingController nevController;
+  late TextEditingController azonositoController;
+  late TextEditingController lokacioController;
+  late TextEditingController felelosController;
+  late TextEditingController kinelVanController;
+  late TextEditingController ertekController;
+  List<MegjegyzesModel> megjegyzesek = [];
+
+  @override
+  void initState() {
+    super.initState();
+    nevController = TextEditingController(text: widget.eszkoz.eszkozNev);
+    azonositoController = TextEditingController(text: widget.eszkoz.eszkozAzonosito);
+    lokacioController = TextEditingController(text: widget.eszkoz.lokacio);
+    felelosController = TextEditingController(text: widget.eszkoz.felelosNev);
+    kinelVanController = TextEditingController(text: widget.eszkoz.kinelVan);
+    ertekController = TextEditingController(text: widget.eszkoz.ertek?.toString() ?? '0');
+    megjegyzesek = List.from(widget.eszkoz.megjegyzesek);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: appBarColor,
+        title: const Text("Eszköz szerkesztése"),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            _buildTextField("Eszköz neve", nevController),
+            _buildTextField("Azonosító", azonositoController),
+            _buildTextField("Lokáció", lokacioController),
+            _buildTextField("Felelős", felelosController),
+            _buildTextField("Kinél van", kinelVanController),
+            _buildTextField("Érték (Ft)", ertekController, isNumber: true),
+            const SizedBox(height: 16),
+            _buildMegjegyzesek(),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _mentes,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: buttonColor,
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+              ),
+              child: const Text("Mentés", style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(String label, TextEditingController controller, {bool isNumber = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: TextField(
+        controller: controller,
+        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+        decoration: InputDecoration(
+          labelText: label,
+          filled: true,
+          fillColor: inputFieldColor,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: inputBorderColor),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMegjegyzesek() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Megjegyzések:", style: TextStyle(fontWeight: FontWeight.bold, color: primaryTextColor)),
+        const SizedBox(height: 8),
+        ...megjegyzesek.asMap().entries.map((entry) {
+          int index = entry.key;
+          MegjegyzesModel megjegyzes = entry.value;
+          return Card(
+            color: cardBackgroundColor,
+            child: ListTile(
+              title: Text(megjegyzes.megjegyzes, style: TextStyle(color: primaryTextColor)),
+              subtitle: Text(megjegyzes.felhasznaloNev, style: TextStyle(color: secondaryTextColor)),
+              trailing: IconButton(
+                icon: Icon(Icons.delete, color: Colors.red),
+                onPressed: () {
+                  setState(() {
+                    megjegyzesek.removeAt(index);
+                  });
+                },
+              ),
+            ),
+          );
+        }).toList(),
+      ],
+    );
+  }
+
+  void _mentes() {
+    EszkozModel frissitettEszkoz = widget.eszkoz.copyWith(
+      eszkozNev: nevController.text,
+      eszkozAzonosito: azonositoController.text,
+      lokacio: lokacioController.text,
+      felelosNev: felelosController.text,
+      kinelVan: kinelVanController.text,
+      ertek: double.tryParse(ertekController.text) ?? 0.0,
+      megjegyzesek: megjegyzesek,
+    );
+
+    Navigator.pop(context, frissitettEszkoz);
+  }
+}

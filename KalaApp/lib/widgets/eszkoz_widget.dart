@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' as riverpod;
-import 'package:provider/provider.dart';
 import '../constants.dart';
 import '../models/eszkoz_model.dart';
-import '../models/megjegyzes_model.dart';
 import '../raktarak/eszkoz_view_model.dart';
+import '../raktarak/set_eszkoz_page.dart';
 
 class EszkozWidget extends StatefulWidget {
   final EszkozModel eszkoz;
@@ -28,6 +27,7 @@ class _EszkozWidgetState extends State<EszkozWidget> {
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Column(
         children: [
+
           // Fő listaelem
           Container(
             decoration: BoxDecoration(
@@ -106,6 +106,19 @@ class _EszkozWidgetState extends State<EszkozWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  IconButton(
+                    icon: Icon(Icons.edit, color: iconColor),
+                    onPressed: () {
+                      // Ide jöhet a szerkesztési logika
+                      print("Szerkesztés megnyitva");
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SetEszkozPage(eszkoz: widget.eszkoz),
+                        ));
+                    },
+                  ),
+
                   Container(
                     padding: const EdgeInsets.all(8.0),
                     decoration: BoxDecoration(
@@ -197,7 +210,7 @@ class _EszkozWidgetState extends State<EszkozWidget> {
                             return IconButton(
                               icon: const Icon(Icons.send, color: Colors.white),
                               onPressed: () {
-                                _sendMegjegyzes(ref); // Itt most ref-et használunk
+                                _sendMegjegyzes(ref);
                               },
                             );
                           },
