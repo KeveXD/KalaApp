@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../login/login_viewmodel.dart';
 import '../models/eszkoz_model.dart';
+import '../models/felhasznalo_model.dart';
 import '../models/megjegyzes_model.dart';
 
 class EszkozState {
@@ -170,6 +171,33 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
       return null;
     }
   }
+
+  Future<void> setKinelVanAzEszkoz(EszkozModel eszkoz, bool kinelVan, FelhasznaloModel? aktualisFelhasznalo) async {
+    try {
+      if (aktualisFelhasznalo == null) {
+        print("Hiba: Nincs bejelentkezett felhasználó!");
+        return;
+      }
+
+      // Frissítjük az adott eszköz "kinelVan" mezőjét Firestore-ban
+      await _firestore.collection("Eszkozok").doc(eszkoz.eszkozAzonosito).update({
+        'kinelVan': kinelVan
+            ? aktualisFelhasznalo.email  // Ha kinelVan true, akkor beállítjuk az e-mail címet
+            : '',
+      });
+
+      // Frissítjük a helyi állapotot
+     fetchEszkozok();
+
+
+      print("Eszköz státusza sikeresen frissítve!");
+    } catch (e) {
+      print("Hiba az eszköz státuszának frissítésekor: $e");
+    }
+  }
+
+
+
 }
 
 final eszkozViewModelProvider = StateNotifierProvider<EszkozViewModel, EszkozState>((ref) {

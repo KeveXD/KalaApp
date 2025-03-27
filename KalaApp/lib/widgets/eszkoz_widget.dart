@@ -1,28 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' as riverpod;
 import '../constants.dart';
+import '../login/login_viewmodel.dart';
 import '../models/eszkoz_model.dart';
 import '../raktarak/eszkoz_view_model.dart';
 import '../raktarak/set_eszkoz_page.dart';
 
-class EszkozWidget extends StatefulWidget {
+class EszkozWidget extends riverpod.ConsumerStatefulWidget  {
   final EszkozModel eszkoz;
 
   const EszkozWidget({Key? key, required this.eszkoz}) : super(key: key);
 
   @override
-  State<EszkozWidget> createState() => _EszkozWidgetState();
+  riverpod.ConsumerState<EszkozWidget> createState() => _EszkozWidgetState();
 }
 
-class _EszkozWidgetState extends State<EszkozWidget> {
+class _EszkozWidgetState extends riverpod.ConsumerState<EszkozWidget> {
   bool isExpanded = false;
-  bool isChecked = false;
+
+
+
   final PageController _pageController = PageController();
   int _currentPage = 0;
   final TextEditingController _megjegyzesController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final aktualisFelhasznalo = ref.watch(loginViewModelProvider).felhasznalo;
+    final eszkozState = ref.watch(eszkozViewModelProvider);
+
+
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Column(
@@ -42,56 +50,65 @@ class _EszkozWidgetState extends State<EszkozWidget> {
                 ),
               ],
             ),
-            child: ListTile(
-              leading: Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: inputBorderColor,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(Icons.image, color: Colors.white),
-              ),
-              title: Text(
-                widget.eszkoz.eszkozNev,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: primaryTextColor,
-                ),
-              ),
-              subtitle: Text(
-                "Nála van: ${widget.eszkoz.felelosNev}",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: secondaryTextColor,
-                ),
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Checkbox(
-                    value: isChecked,
-                    onChanged: (value) {
-                      setState(() {
-                        isChecked = value ?? false;
-                      });
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      isExpanded ? Icons.expand_less : Icons.expand_more,
-                      color: iconColor,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        isExpanded = !isExpanded;
-                      });
-                    },
-                  ),
-                ],
-              ),
+            child:
+
+
+        ListTile(
+          leading: Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: inputBorderColor,
+              borderRadius: BorderRadius.circular(8),
             ),
+            child: const Icon(Icons.image, color: Colors.white),
+          ),
+          title: Text(
+            widget.eszkoz.eszkozNev,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: primaryTextColor,
+            ),
+          ),
+          subtitle: Text(
+            "Nála van: ${widget.eszkoz.felelosNev}",
+            style: TextStyle(
+              fontSize: 14,
+              color: secondaryTextColor,
+            ),
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Checkbox(
+                value: eszkozState.eszkozok.any((e) => e.eszkozAzonosito == widget.eszkoz.eszkozAzonosito && e.kinelVan == aktualisFelhasznalo?.email),
+                onChanged: (value) async {
+                  await ref.read(eszkozViewModelProvider.notifier).setKinelVanAzEszkoz(widget.eszkoz, value!, aktualisFelhasznalo);
+                  print(eszkozState.eszkozok.any((e) => e.eszkozAzonosito == widget.eszkoz.eszkozAzonosito && e.kinelVan == aktualisFelhasznalo?.email));
+
+
+                },
+
+              ),
+
+
+              IconButton(
+                icon: Icon(
+                  isExpanded ? Icons.expand_less : Icons.expand_more,
+                  color: iconColor,
+                ),
+                onPressed: () {
+                  setState(() {
+                    isExpanded = !isExpanded;
+                  });
+                },
+              ),
+            ],
+          ),
+        )
+
+
           ),
 
           // Lenyitható rész
@@ -219,8 +236,6 @@ class _EszkozWidgetState extends State<EszkozWidget> {
                     ],
                   ),
 
-
-
                   const SizedBox(height: 12),
 
 //fontos
@@ -269,17 +284,8 @@ class _EszkozWidgetState extends State<EszkozWidget> {
               ),
             ),
     //fontos
-
-
                 ],
               ),
-
-
-
-
-
-
-
 
     );
   }

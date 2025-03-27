@@ -8,8 +8,8 @@ import '../widgets/drawer_widget.dart';
 class LoginPage extends ConsumerWidget {
   LoginPage({Key? key}) : super(key: key);
 
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController emailController = TextEditingController(text: "keve@gmail.com");
+  final TextEditingController passwordController = TextEditingController(text: "Keve123");
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
