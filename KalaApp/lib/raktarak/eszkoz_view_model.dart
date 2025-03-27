@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../login/login_viewmodel.dart';
+import '../models/elozmeny_bejegyzes_model.dart';
 import '../models/eszkoz_model.dart';
 import '../models/felhasznalo_model.dart';
 import '../models/megjegyzes_model.dart';
@@ -186,8 +187,10 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
             : '',
       });
 
-      // Frissítjük a helyi állapotot
-     fetchEszkozok();
+
+      await addElozmenyBejegyzes(eszkoz, aktualisFelhasznalo.email, kinelVan);
+
+      fetchEszkozok();
 
 
       print("Eszköz státusza sikeresen frissítve!");
@@ -196,6 +199,27 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
     }
   }
 
+  Future<void> addElozmenyBejegyzes(EszkozModel eszkoz, String email, bool kinelVan) async {
+    try {
+      final elozoBejegyzes = ElozmenyBejegyzesModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(), // Egyedi azonosító
+        email: email,
+        idopont: DateTime.now(),
+        nalaVan: kinelVan,
+      );
+
+      await _firestore
+          .collection("Eszkozok")
+          .doc(eszkoz.eszkozAzonosito)
+          .collection("elozmenyek") // Alkollekció az előzményeknek
+          .doc(elozoBejegyzes.id) // Egyedi dokumentum ID
+          .set(elozoBejegyzes.toMap());
+
+      print("Előzmény sikeresen hozzáadva!");
+    } catch (e) {
+      print("Hiba az előzmény mentésekor: $e");
+    }
+  }
 
 
 }

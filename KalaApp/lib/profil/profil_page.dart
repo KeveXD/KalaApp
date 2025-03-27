@@ -1,32 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kalaapp/profil/profil_view_model.dart';
 import 'package:kalaapp/widgets/drawer_widget.dart';
 import '../constants.dart';
-import '../models/eszkoz_model.dart';
+import '../raktarak/eszkoz_view_model.dart';
 import '../widgets/profil_widget.dart';
 import '../widgets/eszkoz_widget.dart';
 
-class ProfilPage extends StatefulWidget {
+class ProfilPage extends ConsumerStatefulWidget {
   @override
   _ProfilPageState createState() => _ProfilPageState();
 }
 
-class _ProfilPageState extends State<ProfilPage> {
+class _ProfilPageState extends ConsumerState<ProfilPage> {
   bool showCurrentDevices = true;
 
-  final List<String> currentDevices = [
-    'Laptop - Dell XPS 15',
-    'Telefon - Samsung Galaxy S23',
-    'Tablet - iPad Pro 12.9',
-    'Okosóra - Apple Watch Series 8',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      ref.read(profilViewModelProvider.notifier).fetchProfilData();
+    });
+  }
 
-  final List<String> previousDevices = [
-    'Régi Laptop - Lenovo ThinkPad',
-    'Régi Telefon - iPhone 8',
-  ];
 
   @override
   Widget build(BuildContext context) {
+    final profilState = ref.watch(profilViewModelProvider);
+    final eszkozState = ref.watch(eszkozViewModelProvider);
+
     return Scaffold(
       backgroundColor: defaultBackgroundColor,
       appBar: AppBar(
@@ -40,13 +42,12 @@ class _ProfilPageState extends State<ProfilPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ProfilWidget beépítése
+            // Profil adatok
             ProfilWidget(
               showBeallitasok: true,
-
             ),
             SizedBox(height: 20),
-            // Váltó gomb
+            // Váltó gomb a jelenlegi és előzmény eszközök között
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -88,19 +89,18 @@ class _ProfilPageState extends State<ProfilPage> {
             SizedBox(height: 10),
             // Eszközök listázása
             Expanded(
-              child: ListView.builder(
-                itemCount: showCurrentDevices ? currentDevices.length : previousDevices.length,
+              child: profilState == null
+                  ? Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                itemCount: showCurrentDevices
+                    ? profilState.jelenlegiEszkozok.length
+                    : profilState.elozmenyEszkozok.length,
                 itemBuilder: (context, index) {
-                  return EszkozWidget(
-                    eszkoz: EszkozModel(
-                      eszkozNev: 'N/A',
-                      eszkozAzonosito: 'N/A',
-                      lokacio: 'N/A',
-                      felelosNev: 'N/A',
-                      megjegyzesek: [],
-                      kepek: [], komment: 'loool',
-                    ),
-                  );
+                  final eszkoz = showCurrentDevices
+                      ? profilState.jelenlegiEszkozok[index]
+                      : profilState.elozmenyEszkozok[index];
+
+                  return EszkozWidget(eszkoz: eszkoz);
                 },
               ),
             ),

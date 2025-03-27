@@ -85,9 +85,6 @@ class _EszkozWidgetState extends riverpod.ConsumerState<EszkozWidget> {
                 value: eszkozState.eszkozok.any((e) => e.eszkozAzonosito == widget.eszkoz.eszkozAzonosito && e.kinelVan == aktualisFelhasznalo?.email),
                 onChanged: (value) async {
                   await ref.read(eszkozViewModelProvider.notifier).setKinelVanAzEszkoz(widget.eszkoz, value!, aktualisFelhasznalo);
-                  print(eszkozState.eszkozok.any((e) => e.eszkozAzonosito == widget.eszkoz.eszkozAzonosito && e.kinelVan == aktualisFelhasznalo?.email));
-
-
                 },
 
               ),
