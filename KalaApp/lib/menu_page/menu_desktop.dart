@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants.dart'; // A globális színpaletta importálása
 import '../raktarak/eszkoz_view_model.dart';
+import '../svg/jobb_raktar_svg.dart';
 import '../widgets/eszkoz_widget.dart';
 import '../widgets/raktar_widget.dart';
 import '../widgets/profil_widget.dart';
@@ -52,8 +53,7 @@ class MenuDesktop extends ConsumerWidget {
                       itemCount: eszkozState.eszkozok.length,
                       itemBuilder: (context, index) {
                         final eszkoz = eszkozState.eszkozok[index];
-                        return EszkozWidget(eszkoz: eszkoz,
-                        );
+                        return EszkozWidget(eszkoz: eszkoz);
                       },
                     ),
                   ),
@@ -66,7 +66,7 @@ class MenuDesktop extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   ProfilWidget(),
-
+                  // todo
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -83,9 +83,14 @@ class MenuDesktop extends ConsumerWidget {
                             ),
                           ],
                         ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: JobbRaktarSvg(), // Itt helyettesítjük az SVG kódot a JobbRaktarSvg widgettel
+                        ),
                       ),
                     ),
                   ),
+                  // eddig
                 ],
               ),
             ),
