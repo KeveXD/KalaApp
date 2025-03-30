@@ -17,14 +17,17 @@ class _JobbRaktarSvgState extends State<JobbRaktarSvg> {
           _buildSvg(),
           fit: BoxFit.contain,
         ),
-        Positioned.fill(
-          child: GestureDetector(
-            onTapUp: (details) {
-              _handleTap(details.localPosition);
-            },
-            child: Container(color: Colors.transparent),
-          ),
-        ),
+        // Kattintható területek a szürke téglalapokhoz
+        _buildRectangleGestureDetector(25, 30, 45, 230, 'rect2'),
+        _buildRectangleGestureDetector(140, 30, 45, 230, 'rect3'),
+        _buildRectangleGestureDetector(28, 35, 38, 48, 'rect4'),
+        _buildRectangleGestureDetector(28, 90, 38, 48, 'rect5'),
+        _buildRectangleGestureDetector(28, 145, 38, 48, 'rect6'),
+        _buildRectangleGestureDetector(28, 200, 38, 48, 'rect7'),
+        _buildRectangleGestureDetector(144, 35, 38, 48, 'rect8'),
+        _buildRectangleGestureDetector(144, 90, 38, 48, 'rect9'),
+        _buildRectangleGestureDetector(144, 145, 38, 48, 'rect10'),
+        _buildRectangleGestureDetector(144, 200, 38, 48, 'rect11'),
       ],
     );
   }
@@ -51,33 +54,20 @@ class _JobbRaktarSvgState extends State<JobbRaktarSvg> {
     ''';
   }
 
-  void _handleTap(Offset position) {
-    // Approximate touch regions for rectangles
-    if (_isWithin(position, 25, 30, 45, 230)) {
-      _onRectTapped('rect2');
-    } else if (_isWithin(position, 140, 30, 45, 230)) {
-      _onRectTapped('rect3');
-    } else if (_isWithin(position, 28, 35, 38, 48)) {
-      _onRectTapped('rect4');
-    } else if (_isWithin(position, 28, 90, 38, 48)) {
-      _onRectTapped('rect5');
-    } else if (_isWithin(position, 28, 145, 38, 48)) {
-      _onRectTapped('rect6');
-    } else if (_isWithin(position, 28, 200, 38, 48)) {
-      _onRectTapped('rect7');
-    } else if (_isWithin(position, 144, 35, 38, 48)) {
-      _onRectTapped('rect8');
-    } else if (_isWithin(position, 144, 90, 38, 48)) {
-      _onRectTapped('rect9');
-    } else if (_isWithin(position, 144, 145, 38, 48)) {
-      _onRectTapped('rect10');
-    } else if (_isWithin(position, 144, 200, 38, 48)) {
-      _onRectTapped('rect11');
-    }
-  }
-
-  bool _isWithin(Offset tap, double x, double y, double width, double height) {
-    return tap.dx >= x && tap.dx <= x + width && tap.dy >= y && tap.dy <= y + height;
+  // A szürke téglalapokhoz kattintható réteg hozzáadása
+  Widget _buildRectangleGestureDetector(double x, double y, double width, double height, String id) {
+    return Positioned(
+      left: x,
+      top: y,
+      child: GestureDetector(
+        onTap: () => _onRectTapped(id),
+        child: Container(
+          width: width,
+          height: height,
+          color: Colors.transparent, // Az átlátszó réteg kattinthatóvá teszi
+        ),
+      ),
+    );
   }
 
   void _onRectTapped(String id) {
