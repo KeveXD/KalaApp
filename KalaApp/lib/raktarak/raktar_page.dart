@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants.dart';
 import '../models/eszkoz_model.dart';
 import '../widgets/eszkoz_widget.dart';
+import '../widgets/raktarak/jobb_raktar_widget.dart';
 import '../widgets/talca_widget.dart';
 import 'eszkoz_view_model.dart';
 import 'new_eszkoz.dart';
+import '../widgets/profil_widget.dart';
 
 class RaktarPage extends ConsumerStatefulWidget {
   const RaktarPage({Key? key}) : super(key: key);
@@ -24,7 +26,7 @@ class _RaktarPageState extends ConsumerState<RaktarPage> {
   Widget build(BuildContext context) {
     final eszkozState = ref.watch(eszkozViewModelProvider);
 
-
+    // Szűrt eszközök
     List<EszkozModel> filteredEszkozok = eszkozState.eszkozok.where((eszkoz) {
       return (!isFilterApplied ||
           (eszkoz.eszkozNev.toLowerCase().contains(searchQuery.toLowerCase()) &&
@@ -33,94 +35,128 @@ class _RaktarPageState extends ConsumerState<RaktarPage> {
 
     return Scaffold(
       backgroundColor: defaultBackgroundColor,
-      appBar: myAppBar,
-      drawer: myDrawer,
+      appBar: myAppBar, // Az app bar
+      drawer: myDrawer, // Bal oldali menü
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Card(
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+            // Bal oldalon mindig nyitva lévő drawer
+            Expanded(
+              flex: 1,
+              child: myDrawer,
+            ),
+            // Középső tartalom (eszközök listája és szűrő)
+            Expanded(
+              flex: 3,
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ListTile(
-                    title: const Text(
-                      "Szűrés",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  Card(
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    trailing: IconButton(
-                      icon: Icon(isFilterExpanded ? Icons.expand_less : Icons.expand_more),
-                      onPressed: () {
-                        setState(() {
-                          isFilterExpanded = !isFilterExpanded;
-                        });
+                    child: Column(
+                      children: [
+                        ListTile(
+                          title: const Text(
+                            "Szűrés",
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          trailing: IconButton(
+                            icon: Icon(isFilterExpanded ? Icons.expand_less : Icons.expand_more),
+                            onPressed: () {
+                              setState(() {
+                                isFilterExpanded = !isFilterExpanded;
+                              });
+                            },
+                          ),
+                        ),
+                        if (isFilterExpanded)
+                          Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Column(
+                              children: [
+                                TextField(
+                                  decoration: const InputDecoration(
+                                    labelText: "Keresés név szerint",
+                                    border: OutlineInputBorder(),
+                                    prefixIcon: Icon(Icons.search),
+                                  ),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      searchQuery = value;
+                                    });
+                                  },
+                                ),
+                                const SizedBox(height: 10),
+                                DropdownButtonFormField<String>(
+                                  decoration: const InputDecoration(
+                                    labelText: "Raktár kiválasztása",
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  value: selectedWarehouse,
+                                  items: [
+                                    DropdownMenuItem<String>(
+                                      value: null,
+                                      child: Text("Minden raktár"),
+                                    ),
+                                    ...eszkozState.raktarakNevei.map((warehouse) {
+                                      return DropdownMenuItem(
+                                        value: warehouse,
+                                        child: Text(warehouse),
+                                      );
+                                    }).toList(),
+                                  ],
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedWarehouse = value;
+                                    });
+                                  },
+                                ),
+                                const SizedBox(height: 10),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      isFilterApplied = true;
+                                    });
+                                  },
+                                  child: const Text("Szűrés alkalmazása"),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: eszkozState.isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : filteredEszkozok.isEmpty
+                        ? const Center(child: Text("Nincsenek elérhető eszközök."))
+                        : ListView.builder(
+                      itemCount: filteredEszkozok.length,
+                      itemBuilder: (context, index) {
+                        final eszkoz = filteredEszkozok[index];
+                        return EszkozWidget(eszkoz: eszkoz);
                       },
                     ),
                   ),
-                  if (isFilterExpanded)
-                    Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        children: [
-                          TextField(
-                            decoration: const InputDecoration(
-                              labelText: "Keresés név szerint",
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.search),
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                searchQuery = value;
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 10),
-                          DropdownButtonFormField<String>(
-                            decoration: const InputDecoration(
-                              labelText: "Raktár kiválasztása",
-                              border: OutlineInputBorder(),
-                            ),
-                            items: eszkozState.raktarakNevei.map((warehouse) => DropdownMenuItem(
-                              value: warehouse,
-                              child: Text(warehouse),
-                            )).toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                selectedWarehouse = value;
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 10),
-                          ElevatedButton(
-                            onPressed: () {
-                              setState(() {
-                                isFilterApplied = true;
-                              });
-                            },
-                            child: const Text("Szűrés alkalmazása"),
-                          ),
-                        ],
-                      ),
-                    ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            // Jobb oldalon a profil és jobb raktár widgetek
             Expanded(
-              child: eszkozState.isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : filteredEszkozok.isEmpty
-                  ? const Center(child: Text("Nincsenek elérhető eszközök."))
-                  : ListView.builder(
-                itemCount: filteredEszkozok.length,
-                itemBuilder: (context, index) {
-                  final eszkoz = filteredEszkozok[index];
-                  return EszkozWidget(eszkoz: eszkoz);
-                },
+              flex: 1,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ProfilWidget(),
+                  JobbRaktarWidget(),
+                ],
               ),
             ),
           ],

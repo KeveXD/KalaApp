@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kalaapp/widgets/raktarak/jobb_raktar_widget.dart';
 import '../constants.dart'; // A globális színpaletta importálása
 import '../raktarak/eszkoz_view_model.dart';
 import '../svg/jobb_raktar_svg.dart';
@@ -63,37 +64,16 @@ class MenuDesktop extends ConsumerWidget {
 
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,  // Ez biztosítja, hogy mindkét widget kitöltse az elérhető helyet oldalra
                 children: [
-                  ProfilWidget(),
+                  ProfilWidget(),  // A profil widget most már bármilyen szélességben nyúlik
                   // todo
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: listItemColor,
-                          boxShadow: [
-                            BoxShadow(
-                              color: cardShadowColor.withOpacity(0.2),
-                              spreadRadius: 2,
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: JobbRaktarSvg(), // Itt helyettesítjük az SVG kódot a JobbRaktarSvg widgettel
-                        ),
-                      ),
-                    ),
-                  ),
+                  JobbRaktarWidget(),
                   // eddig
                 ],
               ),
             ),
+
           ],
         ),
       ),
