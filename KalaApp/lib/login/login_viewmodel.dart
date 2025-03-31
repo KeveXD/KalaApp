@@ -6,13 +6,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../menu_page/menu_desktop.dart';
 import '../../menu_page/menu_mobil.dart';
 import '../../menu_page/menu_tablet.dart';
-import '../../models/felhasznalo_model.dart'; // FelhasznaloModel importálása
+import '../../models/felhasznalo_model.dart';
 import '../../utils/responsive_layout.dart';
 
 class LoginState {
   final bool isLoading;
   final String? errorMessage;
-  final FelhasznaloModel? felhasznalo; // Most már az egész felhasználói modellt tároljuk
+  final FelhasznaloModel? felhasznalo;
 
   LoginState({
     this.isLoading = false,
