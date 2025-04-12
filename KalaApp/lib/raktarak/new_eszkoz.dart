@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kalaapp/models/eszkoz_model.dart';
 import 'dart:typed_data';
 import '../constants.dart';
+import '../svg/svg_viewmodel.dart';
+import '../widgets/raktarak/jobb_raktar_widget.dart';
 import 'eszkoz_view_model.dart';
 
 Uint8List? _webImage;
@@ -15,12 +17,20 @@ class NewEszkozDialog extends ConsumerWidget {
   final TextEditingController _responsibleController = TextEditingController();
   final TextEditingController _commentController = TextEditingController();
   final TextEditingController _valueController = TextEditingController();
+  final TextEditingController _locationDetailController = TextEditingController(); // ➕ ÚJ: pontos hely
   String? _selectedLocation;
   File? _image;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(eszkozViewModelProvider);
+
+    final svgState = ref.watch(svgViewModelProvider);
+
+    // Automatikusan beállítjuk a location detail-t a selectedId alapján
+    if (svgState.selectedId != null && _locationDetailController.text != svgState.selectedId) {
+      _locationDetailController.text = svgState.selectedId!;
+    }
 
     return Dialog(
       backgroundColor: defaultBackgroundColor,
@@ -36,6 +46,19 @@ class NewEszkozDialog extends ConsumerWidget {
               _buildTextField("Eszköz neve *", _nameController, false, Colors.red),
               _buildTextField("Eszköz azonosító *", _idController, false, Colors.red),
               _buildDropdownField("Lokáció", state.raktarakNevei),
+
+                _buildTextField("Eszköz pontos helye", _locationDetailController, true),
+
+
+
+                Column(
+                  children: const [
+                    SizedBox(height: 10),
+                    JobbRaktarWidget(),
+                  ],
+                ),
+
+              const SizedBox(height: 10),
               _buildTextField("Érték", _valueController, true),
               _buildTextField("Felelős neve", _responsibleController, false),
               _buildTextField("Megjegyzés", _commentController, false, null, 3),
@@ -71,17 +94,16 @@ class NewEszkozDialog extends ConsumerWidget {
                           return;
                         }
 
-                        ref.read(eszkozViewModelProvider.notifier)
-                            .addNewEszkoz(EszkozModel(
-                          eszkozNev: _nameController.text,
-                          eszkozAzonosito: _idController.text,
-                          lokacio: _selectedLocation ?? '',
-                          felelosNev: _responsibleController.text,
-                          komment: _commentController.text,
-                          ertek: ertek,
-                        )
-
-
+                        ref.read(eszkozViewModelProvider.notifier).addNewEszkoz(
+                          EszkozModel(
+                            eszkozNev: _nameController.text,
+                            eszkozAzonosito: _idController.text,
+                            lokacio: _selectedLocation ?? '',
+                            felelosNev: _responsibleController.text,
+                            komment: _commentController.text,
+                            ertek: ertek,
+                            // ➕ ide beírhatod a pontos helyet is, ha van ilyen meződ a modellben
+                          ),
                         );
                         Navigator.of(context).pop();
                       } else {
@@ -155,6 +177,7 @@ class NewEszkozDialog extends ConsumerWidget {
     }
   }
 }
+
 
 void showNewEszkozDialog(BuildContext context) {
   showDialog(
