@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kalaapp/widgets/raktarak/jobb_raktar_widget.dart';
 import '../constants.dart'; // A globális színpaletta importálása
 import '../raktarak/eszkoz_view_model.dart';
-import '../svg/jobb_raktar_svg.dart';
 import '../widgets/eszkoz_widget.dart';
 import '../widgets/raktar_widget.dart';
 import '../widgets/profil_widget.dart';

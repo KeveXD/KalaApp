@@ -1,26 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:kalaapp/svg/jobb_raktar_svg.dart';
 
-import '../../constants.dart'; // Ha szükséges az SVG megjelenítéséhez
+import '../../constants.dart';
+import '../../svg/svg_viewmodel.dart';
 
-class JobbRaktarWidget extends StatefulWidget {
+class JobbRaktarWidget extends ConsumerStatefulWidget {
   const JobbRaktarWidget({Key? key}) : super(key: key);
 
   @override
   _JobbRaktarWidgetState createState() => _JobbRaktarWidgetState();
 }
 
-class _JobbRaktarWidgetState extends State<JobbRaktarWidget> {
-  String selectedShelf = '0'; // Alapértelmezett polc: 0
+class _JobbRaktarWidgetState extends ConsumerState<JobbRaktarWidget> {
+  String selectedShelf = '0';
 
   @override
   Widget build(BuildContext context) {
+    final svgState = ref.watch(svgViewModelProvider);
+    final selectedId = svgState.selectedId;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Container(
-          // Az egész tartalom egy konténerbe kerül
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             color: listItemColor,
@@ -35,27 +39,36 @@ class _JobbRaktarWidgetState extends State<JobbRaktarWidget> {
           ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: SingleChildScrollView(  // Görgethetőség engedélyezése
+            child: SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Téma színű szöveg a tetején
                   Text(
                     'Jobb Raktár',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: primaryTextColor, // Az előzőleg meghatározott szín
+                      color: primaryTextColor,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
 
-                  // SVG képet tartalmazó konténer
+                  // 🔽 Itt jelenítjük meg a kiválasztott csempét
+                  Text(
+                    selectedId != null
+                        ? 'Kiválasztott csempe: $selectedId'
+                        : 'Nincs kiválasztva csempe',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: secondaryTextColor,
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
                   JobbRaktarSvg(),
                   const SizedBox(height: 20),
 
-                  // Polc kiválasztó
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -76,12 +89,12 @@ class _JobbRaktarWidgetState extends State<JobbRaktarWidget> {
                       const SizedBox(width: 10),
                       ElevatedButton(
                         onPressed: () {
-                          // A gomb működése itt implementálható
                           print('Polc $selectedShelf kiválasztva');
                         },
                         child: const Text('Mehet'),
                         style: ElevatedButton.styleFrom(
-                          foregroundColor: buttonTextColor, backgroundColor: buttonColor,
+                          foregroundColor: buttonTextColor,
+                          backgroundColor: buttonColor,
                         ),
                       ),
                     ],
