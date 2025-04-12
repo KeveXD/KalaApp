@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kalaapp/szervezoi/beallitasok/szervezoi_beallitasok_page.dart';
 import 'package:kalaapp/utils/responsive_layout.dart';
 import '../constants.dart';
 import '../login/login_viewmodel.dart';
@@ -40,6 +41,17 @@ class DrawerWidget extends ConsumerWidget {
                     );
                   }),
 
+
+
+                  _buildDrawerItem(Icons.store, "R A K T Á R A K", context, () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => RaktarPage()),
+                    );
+                  }),
+
+                  _buildDrawerItem(Icons.feedback, "V I S S Z A J E L Z É S", context, () {}),
+
                   // Csak akkor jelenjen meg, ha a felhasználó "szervezo" szerepkörű
                   if (felhasznalo != null && felhasznalo.role == "szervezo")
                     Padding(
@@ -50,18 +62,14 @@ class DrawerWidget extends ConsumerWidget {
                         children: [
                           _buildDrawerItem(Icons.inventory, "L E L T Á R", context, () {}),
                           _buildDrawerItem(Icons.verified_user, "J O G O S U L T S Á G O K", context, () {}),
+                          _buildDrawerItem(Icons.settings_applications, "B E Á L L Í T Á S O K", context, () {Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => SzervezoiBeallitasokPage()),
+                          );}),
                         ],
                       ),
                     ),
 
-                  _buildDrawerItem(Icons.store, "R A K T Á R A K", context, () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => RaktarPage()),
-                    );
-                  }),
-
-                  _buildDrawerItem(Icons.feedback, "V I S S Z A J E L Z É S", context, () {}),
                   const Divider(),
 
                   _buildDrawerItem(Icons.home, "K E D V E N C E K", context, () {

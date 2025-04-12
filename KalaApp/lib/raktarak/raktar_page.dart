@@ -25,8 +25,6 @@ class _RaktarPageState extends ConsumerState<RaktarPage> {
   @override
   Widget build(BuildContext context) {
     final eszkozState = ref.watch(eszkozViewModelProvider);
-
-    // Szűrt eszközök
     List<EszkozModel> filteredEszkozok = eszkozState.eszkozok.where((eszkoz) {
       return (!isFilterApplied ||
           (eszkoz.eszkozNev.toLowerCase().contains(searchQuery.toLowerCase()) &&
@@ -35,38 +33,28 @@ class _RaktarPageState extends ConsumerState<RaktarPage> {
 
     return Scaffold(
       backgroundColor: defaultBackgroundColor,
-      appBar: myAppBar, // Az app bar
-      drawer: myDrawer, // Bal oldali menü
+      appBar: myAppBar,
+      drawer: myDrawer,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Bal oldalon mindig nyitva lévő drawer
-            Expanded(
-              flex: 1,
-              child: myDrawer,
-            ),
-            // Középső tartalom (eszközök listája és szűrő)
+            Expanded(flex: 1, child: myDrawer),
             Expanded(
               flex: 3,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Card(
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    color: cardBackgroundColor,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     child: Column(
                       children: [
                         ListTile(
-                          title: const Text(
-                            "Szűrés",
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
+                          title: Text("Szűrés", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: primaryTextColor)),
                           trailing: IconButton(
-                            icon: Icon(isFilterExpanded ? Icons.expand_less : Icons.expand_more),
+                            icon: Icon(isFilterExpanded ? Icons.expand_less : Icons.expand_more, color: iconColor),
                             onPressed: () {
                               setState(() {
                                 isFilterExpanded = !isFilterExpanded;
@@ -79,45 +67,19 @@ class _RaktarPageState extends ConsumerState<RaktarPage> {
                             padding: const EdgeInsets.all(12.0),
                             child: Column(
                               children: [
-                                TextField(
-                                  decoration: const InputDecoration(
-                                    labelText: "Keresés név szerint",
-                                    border: OutlineInputBorder(),
-                                    prefixIcon: Icon(Icons.search),
-                                  ),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      searchQuery = value;
-                                    });
-                                  },
-                                ),
+                                _buildStyledTextField("Keresés név szerint", Icons.search, (value) {
+                                  setState(() {
+                                    searchQuery = value;
+                                  });
+                                }),
                                 const SizedBox(height: 10),
-                                DropdownButtonFormField<String>(
-                                  decoration: const InputDecoration(
-                                    labelText: "Raktár kiválasztása",
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  value: selectedWarehouse,
-                                  items: [
-                                    DropdownMenuItem<String>(
-                                      value: null,
-                                      child: Text("Minden raktár"),
-                                    ),
-                                    ...eszkozState.raktarakNevei.map((warehouse) {
-                                      return DropdownMenuItem(
-                                        value: warehouse,
-                                        child: Text(warehouse),
-                                      );
-                                    }).toList(),
-                                  ],
-                                  onChanged: (value) {
-                                    setState(() {
-                                      selectedWarehouse = value;
-                                    });
-                                  },
-                                ),
+                                _buildStyledDropdown(),
                                 const SizedBox(height: 10),
                                 ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: buttonColor,
+                                    foregroundColor: buttonTextColor,
+                                  ),
                                   onPressed: () {
                                     setState(() {
                                       isFilterApplied = true;
@@ -140,15 +102,13 @@ class _RaktarPageState extends ConsumerState<RaktarPage> {
                         : ListView.builder(
                       itemCount: filteredEszkozok.length,
                       itemBuilder: (context, index) {
-                        final eszkoz = filteredEszkozok[index];
-                        return EszkozWidget(eszkoz: eszkoz);
+                        return EszkozWidget(eszkoz: filteredEszkozok[index]);
                       },
                     ),
                   ),
                 ],
               ),
             ),
-            // Jobb oldalon a profil és jobb raktár widgetek
             Expanded(
               flex: 1,
               child: Column(
@@ -164,26 +124,47 @@ class _RaktarPageState extends ConsumerState<RaktarPage> {
       ),
       bottomNavigationBar: TalcaWidget(
         items: [
-          TalcaItem(
-            icon: Icons.home,
-            onTap: () {
-              Navigator.pushNamed(context, "/home");
-            },
-          ),
-          TalcaItem(
-            icon: Icons.add_circle,
-            onTap: () {
-              showNewEszkozDialog(context);
-            },
-          ),
-          TalcaItem(
-            icon: Icons.person,
-            onTap: () {
-              Navigator.pushNamed(context, "/profile");
-            },
-          ),
+          TalcaItem(icon: Icons.home, onTap: () => Navigator.pushNamed(context, "/home")),
+          TalcaItem(icon: Icons.add_circle, onTap: () => showNewEszkozDialog(context)),
+          TalcaItem(icon: Icons.person, onTap: () => Navigator.pushNamed(context, "/profile")),
         ],
       ),
+    );
+  }
+
+  Widget _buildStyledTextField(String label, IconData icon, Function(String) onChanged) {
+    return TextField(
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(borderSide: BorderSide(color: inputBorderColor)),
+        fillColor: inputFieldColor,
+        filled: true,
+        prefixIcon: Icon(icon, color: iconColor),
+      ),
+      onChanged: onChanged,
+    );
+  }
+
+  Widget _buildStyledDropdown() {
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(
+        labelText: "Raktár kiválasztása",
+        border: OutlineInputBorder(borderSide: BorderSide(color: inputBorderColor)),
+        fillColor: inputFieldColor,
+        filled: true,
+      ),
+      value: selectedWarehouse,
+      items: [
+        DropdownMenuItem(value: null, child: Text("Minden raktár")),
+        ...ref.watch(eszkozViewModelProvider).raktarakNevei.map((warehouse) {
+          return DropdownMenuItem(value: warehouse, child: Text(warehouse));
+        }).toList(),
+      ],
+      onChanged: (value) {
+        setState(() {
+          selectedWarehouse = value;
+        });
+      },
     );
   }
 }
