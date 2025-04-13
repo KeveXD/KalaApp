@@ -1,25 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:kalaapp/svg/jobb_raktar_svg.dart';
+import 'package:kalaapp/svg/svg_viewmodel.dart';
+import 'package:kalaapp/svg/bal_raktar_svg.dart'; // Importáljuk a BalRaktarSvg-t is
 
 import '../../constants.dart';
-import '../../svg/svg_viewmodel.dart';
+import '../../models/raktar_model.dart';
+import '../../svg/jobb_raktar_svg.dart'; // Ne felejtsük el importálni a RaktarModel-t
 
-class JobbRaktarWidget extends ConsumerStatefulWidget {
-  const JobbRaktarWidget({Key? key}) : super(key: key);
+class RaktarWidget extends ConsumerStatefulWidget {
+  final RaktarModel? raktar; // Most opcionálisan fogadunk el RaktarModel-t
+
+  const RaktarWidget({Key? key, this.raktar}) : super(key: key);
 
   @override
-  _JobbRaktarWidgetState createState() => _JobbRaktarWidgetState();
+  _RaktarWidgetState createState() => _RaktarWidgetState();
 }
 
-class _JobbRaktarWidgetState extends ConsumerState<JobbRaktarWidget> {
+class _RaktarWidgetState extends ConsumerState<RaktarWidget> {
   String selectedShelf = '0';
 
   @override
   Widget build(BuildContext context) {
     final svgState = ref.watch(svgViewModelProvider);
     final selectedId = svgState.selectedId;
+
+    // Ha van raktármodell, akkor az alapján döntsünk, különben alapértelmezetten "balraktar"-t jelenítünk meg
+    String raktarNev = widget.raktar?.nev ?? 'balraktar';
 
     return Center(
       child: Padding(
@@ -45,7 +51,7 @@ class _JobbRaktarWidgetState extends ConsumerState<JobbRaktarWidget> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    'Jobb Raktár',
+                    widget.raktar?.nev ?? 'Raktár', // Ha van raktár, annak nevét jelenítjük meg
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -54,7 +60,7 @@ class _JobbRaktarWidgetState extends ConsumerState<JobbRaktarWidget> {
                   ),
                   const SizedBox(height: 10),
 
-                  // 🔽 Itt jelenítjük meg a kiválasztott csempét
+                  // 🔽 Kiválasztott csempe megjelenítése
                   Text(
                     selectedId != null
                         ? 'Kiválasztott csempe: $selectedId'
@@ -66,7 +72,10 @@ class _JobbRaktarWidgetState extends ConsumerState<JobbRaktarWidget> {
                   ),
 
                   const SizedBox(height: 20),
-                  JobbRaktarSvg(),
+
+                  // SVG megjelenítése a raktár neve alapján
+                  raktarNev == "jobbraktar" ? JobbRaktarSvg() : BalRaktarSvg(),
+
                   const SizedBox(height: 20),
 
                   Row(

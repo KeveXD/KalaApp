@@ -4,10 +4,10 @@ import 'package:kalaapp/widgets/raktarak/raktar_widget_viewmodel.dart';
 import '../constants.dart';
 import '../../models/raktar_model.dart';
 
-class RaktarWidget extends ConsumerWidget {
+class RaktarCsempeWidget extends ConsumerWidget {
   final RaktarModel raktar;
 
-  const RaktarWidget({super.key, required this.raktar});
+  const RaktarCsempeWidget({super.key, required this.raktar});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

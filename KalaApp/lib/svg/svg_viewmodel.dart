@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/raktar_model.dart';
 
 class SvgViewModel extends StateNotifier<SVGRaktarState> {
   SvgViewModel(SVGRaktarState initialModel) : super(initialModel);

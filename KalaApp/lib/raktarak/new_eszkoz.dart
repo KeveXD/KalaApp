@@ -5,8 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kalaapp/models/eszkoz_model.dart';
 import 'dart:typed_data';
 import '../constants.dart';
+import '../models/raktar_model.dart';
 import '../svg/svg_viewmodel.dart';
-import '../widgets/raktarak/jobb_raktar_widget.dart';
+import '../widgets/raktarak/raktar_widget.dart';
+import '../widgets/raktarak/raktar_widget_viewmodel.dart';
 import 'eszkoz_viewmodel.dart';
 
 Uint8List? _webImage;
@@ -23,7 +25,8 @@ class NewEszkozDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(eszkozViewModelProvider);
+    final eszkozState = ref.watch(eszkozViewModelProvider);
+    final raktarState = ref.watch(raktarWidgetViewModelProvider);
 
     final svgState = ref.watch(svgViewModelProvider);
 
@@ -45,16 +48,16 @@ class NewEszkozDialog extends ConsumerWidget {
               const SizedBox(height: 10),
               _buildTextField("Eszköz neve *", _nameController, false, Colors.red),
               _buildTextField("Eszköz azonosító *", _idController, false, Colors.red),
-              _buildDropdownField("Lokáció", state.raktarakNevei),
+              _buildRaktarDropdownField("Lokáció", eszkozState.raktarak, ref),
 
                 _buildTextField("Eszköz pontos helye", _locationDetailController, true),
 
 
 
                 Column(
-                  children: const [
-                    SizedBox(height: 10),
-                    JobbRaktarWidget(),
+                  children: [
+                    const SizedBox(height: 10),
+                    RaktarWidget(raktar: raktarState?.selectedRaktar),
                   ],
                 ),
 
@@ -140,10 +143,10 @@ class NewEszkozDialog extends ConsumerWidget {
     );
   }
 
-  Widget _buildDropdownField(String label, List<String> options) {
+  Widget _buildRaktarDropdownField(String label, List<RaktarModel> raktarModelek, WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
-      child: options.isEmpty
+      child: raktarModelek.isEmpty
           ? CircularProgressIndicator()
           : DropdownButtonFormField<String>(
         value: _selectedLocation,
@@ -154,13 +157,15 @@ class NewEszkozDialog extends ConsumerWidget {
           filled: true,
           fillColor: inputFieldColor,
         ),
-        items: options.map((location) {
+        items: raktarModelek.map((raktar) {
           return DropdownMenuItem<String>(
-            value: location,
-            child: Text(location),
+            value: raktar.nev,
+            child: Text(raktar.nev),
           );
         }).toList(),
         onChanged: (newValue) {
+          //todo
+          ref.read(raktarWidgetViewModelProvider.notifier).selectRaktar(raktarModelek.firstWhere((raktar) => raktar.nev == newValue));
           _selectedLocation = newValue;
         },
       ),

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants.dart';
 import '../models/eszkoz_model.dart';
 import '../widgets/eszkoz_widget.dart';
-import '../widgets/raktarak/jobb_raktar_widget.dart';
+import '../widgets/raktarak/raktar_widget.dart';
 import '../widgets/talca_widget.dart';
 import 'eszkoz_viewmodel.dart';
 import 'new_eszkoz.dart';
@@ -115,7 +115,7 @@ class _RaktarPageState extends ConsumerState<RaktarPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   ProfilWidget(),
-                  JobbRaktarWidget(),
+                  RaktarWidget(),
                 ],
               ),
             ),
