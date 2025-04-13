@@ -5,16 +5,16 @@ import '../models/eszkoz_model.dart';
 import '../models/megjegyzes_model.dart';
 import 'eszkoz_viewmodel.dart';
 
-class SetEszkozPage extends ConsumerStatefulWidget {
+class EszkozSzerkesztesPage extends ConsumerStatefulWidget {
   final EszkozModel eszkoz;
 
-  const SetEszkozPage({Key? key, required this.eszkoz}) : super(key: key);
+  const EszkozSzerkesztesPage({Key? key, required this.eszkoz}) : super(key: key);
 
   @override
   _SetEszkozPageState createState() => _SetEszkozPageState();
 }
 
-class _SetEszkozPageState extends ConsumerState<SetEszkozPage> {
+class _SetEszkozPageState extends ConsumerState<EszkozSzerkesztesPage> {
   late TextEditingController nevController;
   late TextEditingController azonositoController;
   late TextEditingController lokacioController;

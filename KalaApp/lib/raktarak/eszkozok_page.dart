@@ -9,14 +9,14 @@ import 'eszkoz_viewmodel.dart';
 import 'new_eszkoz.dart';
 import '../widgets/profil_widget.dart';
 
-class RaktarPage extends ConsumerStatefulWidget {
-  const RaktarPage({Key? key}) : super(key: key);
+class EszkozokPage extends ConsumerStatefulWidget {
+  const EszkozokPage({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<RaktarPage> createState() => _RaktarPageState();
+  ConsumerState<EszkozokPage> createState() => _RaktarPageState();
 }
 
-class _RaktarPageState extends ConsumerState<RaktarPage> {
+class _RaktarPageState extends ConsumerState<EszkozokPage> {
   String? selectedWarehouse;
   String searchQuery = "";
   bool isFilterExpanded = false;

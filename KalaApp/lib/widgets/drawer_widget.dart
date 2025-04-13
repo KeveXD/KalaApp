@@ -9,7 +9,7 @@ import '../menu_page/menu_desktop.dart';
 import '../menu_page/menu_mobil.dart';
 import '../menu_page/menu_tablet.dart';
 import '../profil/profil_page.dart';
-import '../raktarak/raktar_page.dart';
+import '../raktarak/eszkozok_page.dart';
 
 class DrawerWidget extends ConsumerWidget {
   const DrawerWidget({Key? key}) : super(key: key);
@@ -43,10 +43,10 @@ class DrawerWidget extends ConsumerWidget {
 
 
 
-                  _buildDrawerItem(Icons.store, "R A K T Á R A K", context, () {
+                  _buildDrawerItem(Icons.store, "E S Z K Ö Z Ö K", context, () {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => RaktarPage()),
+                      MaterialPageRoute(builder: (context) => EszkozokPage()),
                     );
                   }),
 

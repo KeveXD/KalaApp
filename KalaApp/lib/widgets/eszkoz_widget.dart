@@ -4,7 +4,7 @@ import '../constants.dart';
 import '../login/login_viewmodel.dart';
 import '../models/eszkoz_model.dart';
 import '../raktarak/eszkoz_viewmodel.dart';
-import '../raktarak/set_eszkoz_page.dart';
+import '../raktarak/eszkoz_szerkesztes_page.dart';
 
 class EszkozWidget extends riverpod.ConsumerStatefulWidget  {
   final EszkozModel eszkoz;
@@ -128,7 +128,7 @@ class _EszkozWidgetState extends riverpod.ConsumerState<EszkozWidget> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => SetEszkozPage(eszkoz: widget.eszkoz),
+                          builder: (context) => EszkozSzerkesztesPage(eszkoz: widget.eszkoz),
                         ));
                     },
                   ),
