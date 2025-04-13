@@ -3,13 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class SvgViewModel extends StateNotifier<SVGRaktarState> {
   SvgViewModel(SVGRaktarState initialModel) : super(initialModel);
 
-  void updateSelectedId(String id) {
-    state = state.copyWith(selectedId: id);
+  void updateState({String nev = 'Raktár', required String id}) {
+    state = state.copyWith(selectedId: id, nev: nev);
   }
 
-  void updateRaktarModel(SVGRaktarState updatedModel) {
-    state = updatedModel;
-  }
 }
 
 
@@ -18,9 +15,9 @@ StateNotifierProvider<SvgViewModel, SVGRaktarState>(
       (ref) => SvgViewModel(SVGRaktarState(nev: "Alap Raktár")),
 );
 
-
+//ez azert felel hogy mi legyen megjelenitve az svg terkepeken
 class SVGRaktarState {
-  final String nev;
+  final String nev;//ennek nem sok ertelme van
   final String? selectedId;
 
   SVGRaktarState({

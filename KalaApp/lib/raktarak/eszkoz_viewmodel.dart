@@ -9,7 +9,7 @@ import '../models/megjegyzes_model.dart';
 
 class EszkozState {
   final List<EszkozModel> eszkozok;
-  final List<RaktarModel> raktarak;//todo
+  final List<RaktarModel> raktarak;
   final List<String> raktarakNevei;
   final bool isLoading;
   final String? errorMessage;

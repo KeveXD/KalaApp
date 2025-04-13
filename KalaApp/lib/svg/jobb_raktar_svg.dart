@@ -66,7 +66,7 @@ class JobbRaktarSvg extends ConsumerWidget {
       top: y,
       child: GestureDetector(
         onTap: () {
-          ref.read(svgViewModelProvider.notifier).updateSelectedId(id);
+          ref.read(svgViewModelProvider.notifier).updateState(nev: 'jobbraktar',id: id);
         },
         child: Container(
           width: width,
