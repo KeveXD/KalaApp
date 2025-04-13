@@ -57,7 +57,8 @@ class NewEszkozDialog extends ConsumerWidget {
                 Column(
                   children: [
                     const SizedBox(height: 10),
-                    RaktarWidget(raktar: raktarState?.selectedRaktar),
+                    //ref.read(raktarWidgetViewModelProvider.notifier).selectRaktar(raktarState?.selectedRaktar),
+                    RaktarWidget(),
                   ],
                 ),
 
@@ -164,7 +165,7 @@ class NewEszkozDialog extends ConsumerWidget {
           );
         }).toList(),
         onChanged: (newValue) {
-          //todo
+
           ref.read(raktarWidgetViewModelProvider.notifier).selectRaktar(raktarModelek.firstWhere((raktar) => raktar.nev == newValue));
           _selectedLocation = newValue;
         },

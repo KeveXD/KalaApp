@@ -18,7 +18,7 @@ StateNotifierProvider<RaktarWidgetViewModel, RaktarWidgetState?>(
       (ref) => RaktarWidgetViewModel(),
 );
 
-
+//kivalasztott raktart tarolja
 class RaktarWidgetState {
   final RaktarModel selectedRaktar;
 

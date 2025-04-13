@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' as riverpod;
+import 'package:kalaapp/widgets/raktarak/raktar_widget_viewmodel.dart';
 import '../constants.dart';
 import '../login/login_viewmodel.dart';
 import '../models/eszkoz_model.dart';
 import '../raktarak/eszkoz_viewmodel.dart';
 import '../raktarak/eszkoz_szerkesztes_page.dart';
+import '../svg/svg_viewmodel.dart';
 
 class EszkozWidget extends riverpod.ConsumerStatefulWidget  {
   final EszkozModel eszkoz;
@@ -28,7 +30,8 @@ class _EszkozWidgetState extends riverpod.ConsumerState<EszkozWidget> {
   Widget build(BuildContext context) {
     final aktualisFelhasznalo = ref.watch(loginViewModelProvider).felhasznalo;
     final eszkozState = ref.watch(eszkozViewModelProvider);
-
+    final raktarState = ref.watch(raktarWidgetViewModelProvider);
+    final svgState = ref.watch(svgViewModelProvider);
 
 
     return Padding(
@@ -98,9 +101,21 @@ class _EszkozWidgetState extends riverpod.ConsumerState<EszkozWidget> {
                 onPressed: () {
                   setState(() {
                     isExpanded = !isExpanded;
+
+                    if (isExpanded) {
+
+                      final selectedRaktar = eszkozState.raktarak.firstWhere(
+                            (raktar) => raktar.nev == widget.eszkoz.lokacio,
+                        orElse: () => eszkozState.raktarak.first,
+                      );
+                      ref.read(raktarWidgetViewModelProvider.notifier).selectRaktar(selectedRaktar);
+
+                      ref.read(svgViewModelProvider.notifier).updateState(id: widget.eszkoz.raktaronBelul.toString());
+                    }
                   });
                 },
               ),
+
             ],
           ),
         )

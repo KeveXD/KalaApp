@@ -61,16 +61,14 @@ class MenuDesktop extends ConsumerWidget {
 
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,  // Ez biztosítja, hogy mindkét widget kitöltse az elérhető helyet oldalra
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  ProfilWidget(),  // A profil widget most már bármilyen szélességben nyúlik
-                  //todo
-                  RaktarWidget(raktar: raktarState?.selectedRaktar)
+                  ProfilWidget(),
+
+                  RaktarWidget()
                 ],
               ),
             ),
-
-
           ],
         ),
       ),

@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kalaapp/svg/svg_viewmodel.dart';
-import 'package:kalaapp/svg/bal_raktar_svg.dart'; // Importáljuk a BalRaktarSvg-t is
+import 'package:kalaapp/svg/bal_raktar_svg.dart';
+import 'package:kalaapp/widgets/raktarak/raktar_widget_viewmodel.dart';
 
 import '../../constants.dart';
 import '../../models/raktar_model.dart';
-import '../../svg/jobb_raktar_svg.dart'; // Ne felejtsük el importálni a RaktarModel-t
+import '../../svg/jobb_raktar_svg.dart';
 
 class RaktarWidget extends ConsumerStatefulWidget {
-  final RaktarModel? raktar; // Most opcionálisan fogadunk el RaktarModel-t
 
-  const RaktarWidget({Key? key, this.raktar}) : super(key: key);
+
+  const RaktarWidget({Key? key,}) : super(key: key);
 
   @override
   _RaktarWidgetState createState() => _RaktarWidgetState();
@@ -22,10 +23,10 @@ class _RaktarWidgetState extends ConsumerState<RaktarWidget> {
   @override
   Widget build(BuildContext context) {
     final svgState = ref.watch(svgViewModelProvider);
+    final raktarState =ref.watch(raktarWidgetViewModelProvider);
     final selectedId = svgState.selectedId;
 
-    // Ha van raktármodell, akkor az alapján döntsünk, különben alapértelmezetten "balraktar"-t jelenítünk meg
-    String raktarNev = widget.raktar?.nev ?? 'balraktar';
+    String raktarNev = raktarState?.selectedRaktar.nev ?? 'Raktár';
 
     return Center(
       child: Padding(
@@ -51,7 +52,7 @@ class _RaktarWidgetState extends ConsumerState<RaktarWidget> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    widget.raktar?.nev ?? 'Raktár', // Ha van raktár, annak nevét jelenítjük meg
+              raktarNev,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,

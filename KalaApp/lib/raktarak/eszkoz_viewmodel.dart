@@ -104,7 +104,6 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
   }
 
 
-
   Future<void> fetchEszkozok() async
   {
     try {
