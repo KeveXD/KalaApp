@@ -29,23 +29,19 @@ class MenuDesktop extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AspectRatio(
-                    aspectRatio: 4,
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: GridView.builder(
-                        itemCount: 4,
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 4,
-                          crossAxisSpacing: 8.0,
-                          mainAxisSpacing: 8.0,
-                        ),
-                        itemBuilder: (context, index) {
-                          return RaktarWidget();
-                        },
-                      ),
+                  SizedBox(
+                    height: 130, // vagy amennyi kell az egy raktármagassághoz
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: eszkozState.raktarak.length,
+                      separatorBuilder: (context, index) => const SizedBox(width: 8),
+                      itemBuilder: (context, index) {
+                        final raktar = eszkozState.raktarak[index];
+                        return RaktarWidget(raktar: raktar); // <-- átadjuk a modellt
+                      },
                     ),
                   ),
+
                   Expanded(
                     child: eszkozState.isLoading
                         ? Center(child: CircularProgressIndicator())

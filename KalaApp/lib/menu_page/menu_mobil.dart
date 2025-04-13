@@ -1,29 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kalaapp/widgets/raktar_widget.dart';
-
 import '../constants.dart';
-import '../models/eszkoz_model.dart';
+import '../raktarak/eszkoz_view_model.dart';
 import '../widgets/eszkoz_widget.dart';
 
-class MenuMobil extends StatefulWidget {
+class MenuMobil extends ConsumerWidget {
   const MenuMobil({Key? key}) : super(key: key);
 
   @override
-  State<MenuMobil> createState() => _MenuMobilState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final eszkozState = ref.watch(eszkozViewModelProvider);
 
-class _MenuMobilState extends State<MenuMobil> {
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: defaultBackgroundColor,
       appBar: AppBar(
         backgroundColor: appBarColor,
-        title: Text(' '),
+        title: const Text(''),
         centerTitle: false,
         leading: Builder(
           builder: (context) => IconButton(
-            icon: Icon(Icons.menu),
+            icon: const Icon(Icons.menu),
             onPressed: () {
               Scaffold.of(context).openDrawer();
             },
@@ -35,34 +32,31 @@ class _MenuMobilState extends State<MenuMobil> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            AspectRatio(
-              aspectRatio: 1,
-              child: SizedBox(
-                width: double.infinity,
-                child: GridView.builder(
-                  itemCount: 4,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-                  itemBuilder: (context, index) {
-                    return RaktarWidget();
-                  },
-                ),
+            // RAKTÁRAK vízszintesen görgethetően
+            SizedBox(
+              height: 130,
+              child: eszkozState.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: eszkozState.raktarak.length,
+                separatorBuilder: (context, index) => const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  final raktar = eszkozState.raktarak[index];
+                  return RaktarWidget(raktar: raktar);
+                },
               ),
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: 4,
-                itemBuilder: (context, index) {
-                  return EszkozWidget(
-                    eszkoz: EszkozModel(
-                      eszkozNev: 'N/A',
-                      eszkozAzonosito: 'N/A',
-                      lokacio: 'N/A',
-                      felelosNev: 'N/A',
-                      megjegyzesek: [],
-                      kepek: [], komment: 'loool',
-                    ),
-                  );
 
+            // ESZKÖZ LISTA
+            Expanded(
+              child: eszkozState.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                itemCount: eszkozState.eszkozok.length,
+                itemBuilder: (context, index) {
+                  final eszkoz = eszkozState.eszkozok[index];
+                  return EszkozWidget(eszkoz: eszkoz);
                 },
               ),
             ),

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kalaapp/models/raktar_model.dart';
 import '../login/login_viewmodel.dart';
 import '../models/elozmeny_bejegyzes_model.dart';
 import '../models/eszkoz_model.dart';
@@ -8,6 +9,7 @@ import '../models/megjegyzes_model.dart';
 
 class EszkozState {
   final List<EszkozModel> eszkozok;
+  final List<RaktarModel> raktarak;//todo
   final List<String> raktarakNevei;
   final bool isLoading;
   final String? errorMessage;
@@ -15,6 +17,7 @@ class EszkozState {
   EszkozState({
     required this.eszkozok,
     required this.raktarakNevei,
+    required this.raktarak,
     this.isLoading = false,
     this.errorMessage,
   });
@@ -23,17 +26,20 @@ class EszkozState {
     return EszkozState(
       eszkozok: [],
       raktarakNevei: [],
+      raktarak: [],
     );
   }
 
   EszkozState copyWith({
     List<String>? raktarakNevei,
     List<EszkozModel>? eszkozok,
+    List<RaktarModel>? raktarak,
     bool? isLoading,
     String? errorMessage,
   }) {
     return EszkozState(
       raktarakNevei: raktarakNevei ?? this.raktarakNevei,
+      raktarak: raktarak ?? this.raktarak,
       eszkozok: eszkozok ?? this.eszkozok,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage ?? this.errorMessage,
@@ -51,19 +57,6 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
     fetchEszkozok();
   }
 
-  Future<void> fetchRaktarak() async {
-    try {
-      state = state.copyWith(isLoading: true);
-
-      final raktarakSnapshot = await _firestore.collection("Raktarak").get();
-      List<String> raktarakNevei = raktarakSnapshot.docs.map((doc) => doc.id).toList();
-
-      state = state.copyWith(raktarakNevei: raktarakNevei, isLoading: false);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: "Hiba a raktárak lekérdezésekor: $e");
-      print("Hiba a raktárak lekérdezésekor: $e");
-    }
-  }
 
   Future<void> addNewEszkoz(EszkozModel ujEszkoz) async {
     try {
@@ -74,6 +67,39 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
       print("Eszköz hozzáadva!");
     } catch (e) {
       print("Hiba az eszköz hozzáadása során: $e");
+    }
+  }
+
+  Future<void> fetchRaktarak() async {
+    try {
+      state = state.copyWith(isLoading: true);
+
+      final raktarakSnapshot = await _firestore.collection("Raktarak").get();
+
+      List<RaktarModel> raktarak = raktarakSnapshot.docs.map((doc) {
+        final data = doc.data();
+        return RaktarModel(
+          nev: doc.id,
+          megjegyzes: data['megjegyzes'] ?? '',
+          raktaronBelul: (data['raktaronBelul'] as List<dynamic>?)
+              ?.whereType<int>()
+              .toList(),
+        );
+      }).toList();
+
+      List<String> raktarakNevei = raktarak.map((r) => r.nev).toList();
+
+      state = state.copyWith(
+        raktarak: raktarak,
+        raktarakNevei: raktarakNevei,
+        isLoading: false,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: "Hiba a raktárak lekérdezésekor: $e",
+      );
+      print("Hiba a raktárak lekérdezésekor: $e");
     }
   }
 

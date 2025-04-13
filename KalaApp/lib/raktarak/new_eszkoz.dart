@@ -85,7 +85,7 @@ class NewEszkozDialog extends ConsumerWidget {
                     style: ElevatedButton.styleFrom(backgroundColor: buttonColor),
                     child: Text("Hozzáadás", style: TextStyle(color: buttonTextColor)),
                     onPressed: () {
-                      if (_idController.text.isNotEmpty && _nameController.text.isNotEmpty && _valueController.text.isNotEmpty) {
+                      if (_idController.text.isNotEmpty && _nameController.text.isNotEmpty) {
                         final double? ertek = double.tryParse(_valueController.text);
                         if (ertek == null) {
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -101,8 +101,8 @@ class NewEszkozDialog extends ConsumerWidget {
                             lokacio: _selectedLocation ?? '',
                             felelosNev: _responsibleController.text,
                             komment: _commentController.text,
+                            raktaronBelul: _locationDetailController.text.isNotEmpty ? int.tryParse(_locationDetailController.text) : null,
                             ertek: ertek,
-                            // ➕ ide beírhatod a pontos helyet is, ha van ilyen meződ a modellben
                           ),
                         );
                         Navigator.of(context).pop();
