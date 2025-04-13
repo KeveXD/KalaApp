@@ -5,7 +5,7 @@ import '../models/eszkoz_model.dart';
 import '../widgets/eszkoz_widget.dart';
 import '../widgets/raktarak/jobb_raktar_widget.dart';
 import '../widgets/talca_widget.dart';
-import 'eszkoz_view_model.dart';
+import 'eszkoz_viewmodel.dart';
 import 'new_eszkoz.dart';
 import '../widgets/profil_widget.dart';
 

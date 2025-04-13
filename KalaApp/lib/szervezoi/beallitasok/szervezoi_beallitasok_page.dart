@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kalaapp/szervezoi/beallitasok/szervezoi_viewmodel.dart';
 import 'package:kalaapp/widgets/drawer_widget.dart';
 
-import '../../raktarak/eszkoz_view_model.dart';
+import '../../raktarak/eszkoz_viewmodel.dart';
 
 class SzervezoiBeallitasokPage extends ConsumerStatefulWidget {
   @override

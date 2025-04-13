@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kalaapp/widgets/raktarak/jobb_raktar_widget.dart';
 import '../constants.dart'; // A globális színpaletta importálása
-import '../raktarak/eszkoz_view_model.dart';
+import '../raktarak/eszkoz_viewmodel.dart';
 import '../widgets/eszkoz_widget.dart';
 import '../widgets/raktar_widget.dart';
 import '../widgets/profil_widget.dart';
+import '../widgets/raktarak/bal_raktar_widget.dart';
+import '../widgets/raktarak/raktar_widget_viewmodel.dart';
 
 class MenuDesktop extends ConsumerWidget {
   const MenuDesktop({Key? key}) : super(key: key);
@@ -13,6 +15,7 @@ class MenuDesktop extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final eszkozState = ref.watch(eszkozViewModelProvider);
+    final raktarState = ref.watch(raktarWidgetViewModelProvider);
 
     return Scaffold(
       backgroundColor: defaultBackgroundColor, // A háttér szín beállítása
@@ -62,12 +65,20 @@ class MenuDesktop extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,  // Ez biztosítja, hogy mindkét widget kitöltse az elérhető helyet oldalra
                 children: [
                   ProfilWidget(),  // A profil widget most már bármilyen szélességben nyúlik
-
-                  JobbRaktarWidget(),
-                  // eddig
+                  //todo
+                  if (raktarState?.selectedRaktar != null) ...[
+                    raktarState!.selectedRaktar.nev == "jobbraktar"
+                        ? JobbRaktarWidget()
+                        : raktarState.selectedRaktar.nev == "balraktar"
+                        ? BalRaktarWidget()
+                        : Container(),
+                  ] else ...[
+                    JobbRaktarWidget(),  // Ha nincs kiválasztva raktár, akkor alapértelmezettként a JobbRaktarWidget jelenjen meg
+                  ],
                 ],
               ),
             ),
+
 
           ],
         ),

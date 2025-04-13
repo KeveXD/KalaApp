@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kalaapp/profil/profil_view_model.dart';
 import 'package:kalaapp/widgets/drawer_widget.dart';
 import '../constants.dart';
-import '../raktarak/eszkoz_view_model.dart';
+import '../raktarak/eszkoz_viewmodel.dart';
 import '../widgets/profil_widget.dart';
 import '../widgets/eszkoz_widget.dart';
 

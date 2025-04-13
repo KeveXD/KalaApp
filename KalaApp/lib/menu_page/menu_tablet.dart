@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants.dart';
-import '../raktarak/eszkoz_view_model.dart';
+import '../raktarak/eszkoz_viewmodel.dart';
 import '../widgets/eszkoz_widget.dart';
 import '../widgets/raktar_widget.dart';
 

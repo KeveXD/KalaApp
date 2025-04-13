@@ -7,7 +7,7 @@ import 'dart:typed_data';
 import '../constants.dart';
 import '../svg/svg_viewmodel.dart';
 import '../widgets/raktarak/jobb_raktar_widget.dart';
-import 'eszkoz_view_model.dart';
+import 'eszkoz_viewmodel.dart';
 
 Uint8List? _webImage;
 

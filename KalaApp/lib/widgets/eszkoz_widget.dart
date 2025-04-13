@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart' as riverpod;
 import '../constants.dart';
 import '../login/login_viewmodel.dart';
 import '../models/eszkoz_model.dart';
-import '../raktarak/eszkoz_view_model.dart';
+import '../raktarak/eszkoz_viewmodel.dart';
 import '../raktarak/set_eszkoz_page.dart';
 
 class EszkozWidget extends riverpod.ConsumerStatefulWidget  {

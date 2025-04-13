@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants.dart';
 import '../models/eszkoz_model.dart';
 import '../models/megjegyzes_model.dart';
-import 'eszkoz_view_model.dart';
+import 'eszkoz_viewmodel.dart';
 
 class SetEszkozPage extends ConsumerStatefulWidget {
   final EszkozModel eszkoz;
