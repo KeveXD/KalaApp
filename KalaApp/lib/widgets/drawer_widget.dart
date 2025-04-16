@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kalaapp/szervezoi/beallitasok/szervezoi_beallitasok_page.dart';
 import 'package:kalaapp/utils/responsive_layout.dart';
 import '../constants.dart';
+import '../leltar/leltar_page.dart';
 import '../login/login_viewmodel.dart';
 import '../login/login_page.dart';
 import '../menu_page/menu_desktop.dart';
@@ -60,7 +61,13 @@ class DrawerWidget extends ConsumerWidget {
                         leading: Icon(Icons.admin_panel_settings, color: iconColor),
                         title: Text("S Z E R V E Z Ő I", style: drawerTextColor),
                         children: [
-                          _buildDrawerItem(Icons.inventory, "L E L T Á R", context, () {}),
+                          _buildDrawerItem(Icons.inventory, "L E L T Á R", context, () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => LeltarPage()),
+                            );
+
+                          }),
                           _buildDrawerItem(Icons.verified_user, "J O G O S U L T S Á G O K", context, () {}),
                           _buildDrawerItem(Icons.settings_applications, "B E Á L L Í T Á S O K", context, () {Navigator.pushReplacement(
                             context,
