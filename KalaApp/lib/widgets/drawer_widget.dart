@@ -69,6 +69,7 @@ class DrawerWidget extends ConsumerWidget {
 
                           }),
                           _buildDrawerItem(Icons.verified_user, "J O G O S U L T S Á G O K", context, () {}),
+                          _buildDrawerItem(Icons.browser_updated_outlined, "F E L - L E T Ö L T É S", context, () {}),
                           _buildDrawerItem(Icons.settings_applications, "B E Á L L Í T Á S O K", context, () {Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(builder: (context) => SzervezoiBeallitasokPage()),

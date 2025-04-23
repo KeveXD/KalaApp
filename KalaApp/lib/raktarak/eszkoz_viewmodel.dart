@@ -1,11 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kalaapp/models/raktar_model.dart';
-import '../login/login_viewmodel.dart';
-import '../models/elozmeny_bejegyzes_model.dart';
+import '../models/raktar_model.dart';
 import '../models/eszkoz_model.dart';
 import '../models/felhasznalo_model.dart';
 import '../models/megjegyzes_model.dart';
+import '../models/elozmeny_bejegyzes_model.dart';
+import '../login/login_viewmodel.dart';
+import '../services/eszkoz_firebase_services.dart';
 
 class EszkozState {
   final List<EszkozModel> eszkozok;
@@ -45,26 +45,20 @@ class EszkozState {
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
-
-
 }
 
 class EszkozViewModel extends StateNotifier<EszkozState> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final EszkozFirebaseService _firebaseService;
 
-  EszkozViewModel() : super(EszkozState.initial()) {
+  EszkozViewModel(this._firebaseService) : super(EszkozState.initial()) {
     fetchRaktarak();
     fetchEszkozok();
   }
 
-
   Future<void> addNewEszkoz(EszkozModel ujEszkoz) async {
     try {
-      await _firestore.collection("Eszkozok").doc(ujEszkoz.eszkozAzonosito).set(ujEszkoz.toJson());
-
-      // Újra lekérjük az eszközök listáját, hogy frissüljön az állapot
+      await _firebaseService.addNewEszkoz(ujEszkoz);
       await fetchEszkozok();
-      print("Eszköz hozzáadva!");
     } catch (e) {
       print("Hiba az eszköz hozzáadása során: $e");
     }
@@ -74,98 +68,43 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
     try {
       state = state.copyWith(isLoading: true);
 
-      final raktarakSnapshot = await _firestore.collection("Raktarak").get();
+      final raktarak = await _firebaseService.fetchRaktarak();
+      final raktarakNevei = raktarak.map((r) => r.nev).toList();
 
-      List<RaktarModel> raktarak = raktarakSnapshot.docs.map((doc) {
-        final data = doc.data();
-        return RaktarModel(
-          nev: doc.id,
-          megjegyzes: data['megjegyzes'] ?? '',
-          raktaronBelul: (data['raktaronBelul'] as List<dynamic>?)
-              ?.whereType<int>()
-              .toList(),
-        );
-      }).toList();
-
-      List<String> raktarakNevei = raktarak.map((r) => r.nev).toList();
-
-      state = state.copyWith(
-        raktarak: raktarak,
-        raktarakNevei: raktarakNevei,
-        isLoading: false,
-      );
+      state = state.copyWith(raktarak: raktarak, raktarakNevei: raktarakNevei, isLoading: false);
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: "Hiba a raktárak lekérdezésekor: $e",
-      );
-      print("Hiba a raktárak lekérdezésekor: $e");
+      state = state.copyWith(isLoading: false, errorMessage: "Hiba a raktárak lekérdezésekor: $e");
     }
   }
 
-
-  Future<void> fetchEszkozok() async
-  {
+  Future<void> fetchEszkozok() async {
     try {
       state = state.copyWith(isLoading: true);
 
-      final eszkozokSnapshot = await _firestore.collection("Eszkozok").get();
-      List<EszkozModel> eszkozok = eszkozokSnapshot.docs.map((doc) {
-        return EszkozModel.fromJson(doc.data());
-      }).toList();
-
+      final eszkozok = await _firebaseService.fetchEszkozok();
       state = state.copyWith(eszkozok: eszkozok, isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: "Hiba az eszközök lekérdezésekor: $e");
-      print("Hiba az eszközök lekérdezésekor: $e");
     }
   }
 
-  Future<int> getNextAvailableId() async {
-    try {
-      // Lekérdezzük az összes dokumentum azonosítóját
-      final snapshot = await _firestore.collection("Eszkozok").get();
-
-      // Kinyerjük az összes dokumentumnevet (azonosítót)
-      Set<int> existingIds = snapshot.docs
-          .map((doc) => int.tryParse(doc.id)) // Próbáljuk számmá alakítani az ID-ket
-          .where((id) => id != null && id > 0) // Csak pozitív számokat tartunk meg
-          .cast<int>()
-          .toSet();
-
-      // Megkeressük a legkisebb hiányzó természetes számot
-      int newId = 1;
-      while (existingIds.contains(newId)) {
-        newId++;
-      }
-
-      return newId;
-    } catch (e) {
-      print("Hiba az azonosító keresése közben: $e");
-      return -1; // Hiba esetén -1-et adunk vissza
-    }
+  Future<int> getNextAvailableEszkozId() async {
+    return await _firebaseService.getNextAvailableEszkozId();
   }
 
   Future<void> addMegjegyzesToEszkoz(EszkozModel eszkoz, MegjegyzesModel ujMegjegyzes) async {
     try {
-      // Új megjegyzések lista, amely tartalmazza az eddigieket + az újat
-      List<MegjegyzesModel> updatedMegjegyzesek = List.from(eszkoz.megjegyzesek)..add(ujMegjegyzes);
+      final updatedMegjegyzesek = List<MegjegyzesModel>.from(eszkoz.megjegyzesek)..add(ujMegjegyzes);
+      final updatedEszkoz = eszkoz.copyWith(megjegyzesek: updatedMegjegyzesek);
 
-      // Firestore-ban frissítjük az adott eszköz dokumentumát
-      await _firestore.collection("Eszkozok").doc(eszkoz.eszkozAzonosito).update({
-        'megjegyzesek': updatedMegjegyzesek.map((m) => m.toJson()).toList(),
-      });
+      await _firebaseService.updateEszkoz(eszkoz: updatedEszkoz);
 
-      // Frissítjük a helyi állapotot
-      List<EszkozModel> updatedEszkozok = state.eszkozok.map((e) {
-        return e.eszkozAzonosito == eszkoz.eszkozAzonosito
-            ? e.copyWith(megjegyzesek: updatedMegjegyzesek)
-            : e;
-      }).toList();
-
+      final updatedEszkozok = state.eszkozok.map((e) =>
+      e.eszkozAzonosito == eszkoz.eszkozAzonosito ? updatedEszkoz : e
+      ).toList();
       state = state.copyWith(eszkozok: updatedEszkozok);
 
-      print("Megjegyzés sikeresen hozzáadva az eszközhöz!");
+      print("Megjegyzés sikeresen hozzáadva!");
     } catch (e) {
       print("Hiba a megjegyzés hozzáadásakor: $e");
     }
@@ -173,20 +112,12 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
 
   Future<MegjegyzesModel?> createMegjegyzes(String szoveg, WidgetRef ref) async {
     try {
-      // Bejelentkezett felhasználó lekérése a LoginViewModel-ből
       final aktualsiFelhasznalo = ref.read(loginViewModelProvider).felhasznalo;
+      if (aktualsiFelhasznalo == null) return null;
 
-      if (aktualsiFelhasznalo == null) {
-        print("Hiba: Nincs bejelentkezett felhasználó!");
-        return null;
-      }
-
-      // Aktuális dátum lekérése
       String formattedDate = DateTime.now().toIso8601String();
-
-      // Megjegyzés létrehozása
       return MegjegyzesModel(
-        azonosito: "11", // Fix azonosító
+        azonosito: "11",
         megjegyzes: szoveg,
         datum: formattedDate,
         emailCim: aktualsiFelhasznalo.email,
@@ -205,50 +136,32 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
         return;
       }
 
-      // Frissítjük az adott eszköz "kinelVan" mezőjét Firestore-ban
-      await _firestore.collection("Eszkozok").doc(eszkoz.eszkozAzonosito).update({
-        'kinelVan': kinelVan
-            ? aktualisFelhasznalo.email  // Ha kinelVan true, akkor beállítjuk az e-mail címet
-            : '',
-      });
+      final updatedEszkoz = eszkoz.copyWith(
+        kinelVan: kinelVan ? aktualisFelhasznalo.email : '',
+      );
 
+      final elozmeny = ElozmenyBejegyzesModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        email: aktualisFelhasznalo.email,
+        idopont: DateTime.now(),
+        nalaVan: kinelVan,
+      );
 
-      await addElozmenyBejegyzes(eszkoz, aktualisFelhasznalo.email, kinelVan);
+      await _firebaseService.updateEszkoz(
+        eszkoz: updatedEszkoz,
+        elozmeny: elozmeny,
+      );
 
-      fetchEszkozok();
-
+      await fetchEszkozok(); // todo lehetne optimalisabb is
 
       print("Eszköz státusza sikeresen frissítve!");
     } catch (e) {
       print("Hiba az eszköz státuszának frissítésekor: $e");
     }
   }
-
-  Future<void> addElozmenyBejegyzes(EszkozModel eszkoz, String email, bool kinelVan) async {
-    try {
-      final elozoBejegyzes = ElozmenyBejegyzesModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(), // Egyedi azonosító
-        email: email,
-        idopont: DateTime.now(),
-        nalaVan: kinelVan,
-      );
-
-      await _firestore
-          .collection("Eszkozok")
-          .doc(eszkoz.eszkozAzonosito)
-          .collection("elozmenyek") // Alkollekció az előzményeknek
-          .doc(elozoBejegyzes.id) // Egyedi dokumentum ID
-          .set(elozoBejegyzes.toMap());
-
-      print("Előzmény sikeresen hozzáadva!");
-    } catch (e) {
-      print("Hiba az előzmény mentésekor: $e");
-    }
-  }
-
-
 }
 
 final eszkozViewModelProvider = StateNotifierProvider<EszkozViewModel, EszkozState>((ref) {
-  return EszkozViewModel();
+  final firebaseService = ref.read(eszkozFirebaseServiceProvider);
+  return EszkozViewModel(firebaseService);
 });

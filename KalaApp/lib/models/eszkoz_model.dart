@@ -12,6 +12,7 @@ class EszkozModel {
   final List<Map<String, String>> elozmenyek;
   final double? ertek;
   final int? raktaronBelul;
+  final List<DateTime> leltarozasok; // Új mező
 
   EszkozModel({
     required this.eszkozNev,
@@ -24,7 +25,8 @@ class EszkozModel {
     this.kinelVan = "",
     this.elozmenyek = const [],
     this.ertek = 0.0,
-    this.raktaronBelul, // Új opcionális paraméter
+    this.raktaronBelul,
+    this.leltarozasok = const [], // Új mező default értékkel
   });
 
   Map<String, dynamic> toJson() {
@@ -39,7 +41,8 @@ class EszkozModel {
       'kinelVan': kinelVan,
       'elozmenyek': elozmenyek,
       'ertek': ertek,
-      'raktaronBelul': raktaronBelul, // Új mező a JSON-ban
+      'raktaronBelul': raktaronBelul,
+      'leltarozasok': leltarozasok.map((d) => d.toIso8601String()).toList(), // Dátumok ISO formátumban
     };
   }
 
@@ -60,7 +63,11 @@ class EszkozModel {
         (json['elozmenyek'] ?? []).map((e) => Map<String, String>.from(e)),
       ),
       ertek: (json['ertek'] ?? 0.0).toDouble(),
-      raktaronBelul: json['raktaronBelul'] as int?, // Új mező inicializálása
+      raktaronBelul: json['raktaronBelul'] as int?,
+      leltarozasok: (json['leltarozasok'] as List<dynamic>?)
+          ?.map((d) => DateTime.parse(d as String))
+          .toList() ??
+          [],
     );
   }
 
@@ -77,6 +84,7 @@ class EszkozModel {
     List<Map<String, String>>? elozmenyek,
     double? ertek,
     int? raktaronBelul,
+    List<DateTime>? leltarozasok,
   }) {
     return EszkozModel(
       eszkozNev: eszkozNev ?? this.eszkozNev,
@@ -89,7 +97,8 @@ class EszkozModel {
       kinelVan: kinelVan ?? this.kinelVan,
       elozmenyek: elozmenyek ?? this.elozmenyek,
       ertek: ertek ?? this.ertek,
-      raktaronBelul: raktaronBelul ?? this.raktaronBelul, // Új mező másolása
+      raktaronBelul: raktaronBelul ?? this.raktaronBelul,
+      leltarozasok: leltarozasok ?? this.leltarozasok,
     );
   }
 }

@@ -24,14 +24,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.green),
-      home: MenuDesktop(),
-
-//todo
-      /*ResponsiveLayout(
+      home: ResponsiveLayout(
         mobileBody: const MenuMobil(),
         tabletBody: const MenuTablet(),
         desktopBody: const MenuDesktop(),
-      ),*/
+      ),
     );
   }
 }
