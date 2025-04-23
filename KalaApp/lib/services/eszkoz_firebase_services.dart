@@ -57,20 +57,24 @@ class EszkozFirebaseService {
 
   Future<void> updateEszkoz({
     required EszkozModel eszkoz,
-    ElozmenyBejegyzesModel? elozmeny,
   }) async {
     final eszkozRef = _firestore.collection("Eszkozok").doc(eszkoz.eszkozAzonosito);
 
     await eszkozRef.update(eszkoz.toJson());
-
-    if (elozmeny != null) {
-      await eszkozRef
-          .collection("elozmenyek")
-          .doc(elozmeny.id)
-          .set(elozmeny.toMap());
-    }
   }
+
+
+  Future<void> deleteEszkoz({
+    required String eszkozAzonosito,
+  }) async {
+    final eszkozRef = _firestore.collection("Eszkozok").doc(eszkozAzonosito);
+
+    await eszkozRef.delete();
+  }
+
 }
+
+
 
 
 final eszkozFirebaseServiceProvider = Provider<EszkozFirebaseService>((ref) {

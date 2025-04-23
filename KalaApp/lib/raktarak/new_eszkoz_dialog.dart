@@ -14,6 +14,10 @@ import 'eszkoz_viewmodel.dart';
 Uint8List? _webImage;
 
 class NewEszkozDialog extends ConsumerWidget {
+  final EszkozModel? existingEszkoz;
+
+  NewEszkozDialog({this.existingEszkoz, Key? key}) : super(key: key);
+
   final TextEditingController _idController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _responsibleController = TextEditingController();
@@ -29,7 +33,17 @@ class NewEszkozDialog extends ConsumerWidget {
     final raktarState = ref.watch(raktarWidgetViewModelProvider);
     final svgState = ref.watch(svgViewModelProvider);
 
-    if (svgState.selectedId != null && _locationDetailController.text != svgState.selectedId) {
+    // Ha van meglévő eszköz, töltsük ki a mezőket
+    if (existingEszkoz != null) {
+      _idController.text = existingEszkoz!.eszkozAzonosito;
+      _nameController.text = existingEszkoz!.eszkozNev;
+      _responsibleController.text = existingEszkoz!.felelosNev ?? '';
+      _commentController.text = existingEszkoz!.komment ?? '';
+      _valueController.text = existingEszkoz!.ertek?.toString() ?? '';
+      _locationDetailController.text = existingEszkoz!.raktaronBelul?.toString() ?? '';
+      _selectedLocation = existingEszkoz!.lokacio;
+    } else if (svgState.selectedId != null && _locationDetailController.text.isEmpty) {
+      // Ha új és van svg-ből selectedId, állítsuk be a pontos helyet
       _locationDetailController.text = svgState.selectedId!;
     }
 
@@ -42,25 +56,25 @@ class NewEszkozDialog extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("Új eszköz hozzáadása", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: primaryTextColor)),
+              Text(
+                existingEszkoz == null ? "Új eszköz hozzáadása" : "Eszköz szerkesztése",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: primaryTextColor),
+              ),
               const SizedBox(height: 10),
               _buildTextField("Eszköz neve *", _nameController, false, Colors.red),
               _buildTextField("Eszköz azonosító *", _idController, false, Colors.red),
               _buildRaktarDropdownField("Lokáció *", eszkozState.raktarak, ref),
               _buildTextField("Eszköz pontos helye *", _locationDetailController, true, Colors.red),
-
               Column(
                 children: [
                   const SizedBox(height: 10),
                   RaktarWidget(),
                 ],
               ),
-
               const SizedBox(height: 10),
               _buildTextField("Érték", _valueController, true),
               _buildTextField("Felelős neve", _responsibleController, false),
               _buildTextField("Megjegyzés", _commentController, false, null, 3),
-
               const SizedBox(height: 10),
               _webImage != null
                   ? Image.memory(_webImage!, height: 100)
@@ -81,7 +95,7 @@ class NewEszkozDialog extends ConsumerWidget {
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(backgroundColor: buttonColor),
-                    child: Text("Hozzáadás", style: TextStyle(color: buttonTextColor)),
+                    child: Text(existingEszkoz == null ? "Hozzáadás" : "Mentés", style: TextStyle(color: buttonTextColor)),
                     onPressed: () {
                       if (_nameController.text.isEmpty ||
                           _idController.text.isEmpty ||
@@ -104,18 +118,22 @@ class NewEszkozDialog extends ConsumerWidget {
                         return;
                       }
 
-                      ref.read(eszkozViewModelProvider.notifier).addNewEszkoz(
-                        EszkozModel(
-                          eszkozNev: _nameController.text,
-                          eszkozAzonosito: _idController.text,
-                          lokacio: _selectedLocation ?? '',
-                          raktaronBelul: int.tryParse(_locationDetailController.text),
-                          felelosNev: _responsibleController.text,
-                          komment: _commentController.text,
-                          ertek: ertek,
-                          // Ha a képet külön menteni akarod majd, itt kéne kezelni a képfeltöltést
-                        ),
+                      final newEszkoz = EszkozModel(
+                        eszkozNev: _nameController.text,
+                        eszkozAzonosito: _idController.text,
+                        lokacio: _selectedLocation ?? '',
+                        raktaronBelul: int.tryParse(_locationDetailController.text),
+                        felelosNev: _responsibleController.text,
+                        komment: _commentController.text,
+                        ertek: ertek,
                       );
+
+                      if (existingEszkoz == null) {
+                        ref.read(eszkozViewModelProvider.notifier).addNewEszkoz(newEszkoz);
+                      } else {
+                        ref.read(eszkozViewModelProvider.notifier).updateEszkoz(existingEszkoz!, newEszkoz);
+                      }
+
                       Navigator.of(context).pop();
                     },
                   ),
@@ -167,8 +185,8 @@ class NewEszkozDialog extends ConsumerWidget {
           );
         }).toList(),
         onChanged: (newValue) {
-          ref.read(raktarWidgetViewModelProvider.notifier).selectRaktar(
-              raktarModelek.firstWhere((raktar) => raktar.nev == newValue));
+          ref.read(raktarWidgetViewModelProvider.notifier)
+              .selectRaktar(raktarModelek.firstWhere((raktar) => raktar.nev == newValue));
           _selectedLocation = newValue;
         },
       ),
@@ -186,13 +204,13 @@ class NewEszkozDialog extends ConsumerWidget {
   }
 }
 
-void showNewEszkozDialog(BuildContext context) {
+void showNewEszkozDialog(BuildContext context, {EszkozModel? existingEszkoz}) {
   showDialog(
     context: context,
     builder: (context) => Dialog(
       child: Container(
         height: MediaQuery.of(context).size.height * 0.75,
-        child: NewEszkozDialog(),
+        child: NewEszkozDialog(existingEszkoz: existingEszkoz),
       ),
     ),
   );

@@ -6,7 +6,7 @@ import '../widgets/eszkoz_widget.dart';
 import '../widgets/raktarak/raktar_widget.dart';
 import '../widgets/talca_widget.dart';
 import 'eszkoz_viewmodel.dart';
-import 'new_eszkoz.dart';
+import 'new_eszkoz_dialog.dart';
 import '../widgets/profil_widget.dart';
 
 class EszkozokPage extends ConsumerStatefulWidget {

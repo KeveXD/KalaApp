@@ -71,9 +71,11 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
       final raktarak = await _firebaseService.fetchRaktarak();
       final raktarakNevei = raktarak.map((r) => r.nev).toList();
 
-      state = state.copyWith(raktarak: raktarak, raktarakNevei: raktarakNevei, isLoading: false);
+      state = state.copyWith(
+          raktarak: raktarak, raktarakNevei: raktarakNevei, isLoading: false);
     } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: "Hiba a raktárak lekérdezésekor: $e");
+      state = state.copyWith(
+          isLoading: false, errorMessage: "Hiba a raktárak lekérdezésekor: $e");
     }
   }
 
@@ -84,7 +86,8 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
       final eszkozok = await _firebaseService.fetchEszkozok();
       state = state.copyWith(eszkozok: eszkozok, isLoading: false);
     } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: "Hiba az eszközök lekérdezésekor: $e");
+      state = state.copyWith(isLoading: false,
+          errorMessage: "Hiba az eszközök lekérdezésekor: $e");
     }
   }
 
@@ -92,9 +95,12 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
     return await _firebaseService.getNextAvailableEszkozId();
   }
 
-  Future<void> addMegjegyzesToEszkoz(EszkozModel eszkoz, MegjegyzesModel ujMegjegyzes) async {
+  Future<void> addMegjegyzesToEszkoz(EszkozModel eszkoz,
+      MegjegyzesModel ujMegjegyzes) async {
     try {
-      final updatedMegjegyzesek = List<MegjegyzesModel>.from(eszkoz.megjegyzesek)..add(ujMegjegyzes);
+      final updatedMegjegyzesek = List<MegjegyzesModel>.from(
+          eszkoz.megjegyzesek)
+        ..add(ujMegjegyzes);
       final updatedEszkoz = eszkoz.copyWith(megjegyzesek: updatedMegjegyzesek);
 
       await _firebaseService.updateEszkoz(eszkoz: updatedEszkoz);
@@ -110,9 +116,12 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
     }
   }
 
-  Future<MegjegyzesModel?> createMegjegyzes(String szoveg, WidgetRef ref) async {
+  Future<MegjegyzesModel?> createMegjegyzes(String szoveg,
+      WidgetRef ref) async {
     try {
-      final aktualsiFelhasznalo = ref.read(loginViewModelProvider).felhasznalo;
+      final aktualsiFelhasznalo = ref
+          .read(loginViewModelProvider)
+          .felhasznalo;
       if (aktualsiFelhasznalo == null) return null;
 
       String formattedDate = DateTime.now().toIso8601String();
@@ -129,7 +138,8 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
     }
   }
 
-  Future<void> setKinelVanAzEszkoz(EszkozModel eszkoz, bool kinelVan, FelhasznaloModel? aktualisFelhasznalo) async {
+  Future<void> setKinelVanAzEszkoz(EszkozModel eszkoz, bool kinelVan,
+      FelhasznaloModel? aktualisFelhasznalo) async {
     try {
       if (aktualisFelhasznalo == null) {
         print("Hiba: Nincs bejelentkezett felhasználó!");
@@ -141,7 +151,10 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
       );
 
       final elozmeny = ElozmenyBejegyzesModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        id: DateTime
+            .now()
+            .millisecondsSinceEpoch
+            .toString(),
         email: aktualisFelhasznalo.email,
         idopont: DateTime.now(),
         nalaVan: kinelVan,
@@ -149,8 +162,8 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
 
       await _firebaseService.updateEszkoz(
         eszkoz: updatedEszkoz,
-        elozmeny: elozmeny,
       );
+      await _firebaseService.addElozmenyBejegyzes(eszkoz, elozmeny);
 
       await fetchEszkozok(); // todo lehetne optimalisabb is
 
@@ -159,9 +172,29 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
       print("Hiba az eszköz státuszának frissítésekor: $e");
     }
   }
+
+  void updateEszkoz(EszkozModel regiEszkoz, EszkozModel ujEszkoz) async {
+    try {
+      if (regiEszkoz.eszkozAzonosito != ujEszkoz.eszkozAzonosito) {
+        // Ha változott az azonosító, akkor töröljük a régit, és hozzáadjuk az újat
+        await _firebaseService.deleteEszkoz(
+            eszkozAzonosito: regiEszkoz.eszkozAzonosito);
+        await _firebaseService.addNewEszkoz(ujEszkoz);
+      } else {
+        // Ha nem változott az azonosító, csak frissítjük
+        await _firebaseService.updateEszkoz(eszkoz: ujEszkoz);
+        fetchEszkozok();
+        fetchRaktarak();
+      }
+
+      print("Eszköz sikeresen frissítve!");
+    } catch (e) {
+      print("Hiba az eszköz frissítésekor: $e");
+    }
+  }
 }
 
-final eszkozViewModelProvider = StateNotifierProvider<EszkozViewModel, EszkozState>((ref) {
+  final eszkozViewModelProvider = StateNotifierProvider<EszkozViewModel, EszkozState>((ref) {
   final firebaseService = ref.read(eszkozFirebaseServiceProvider);
   return EszkozViewModel(firebaseService);
 });
