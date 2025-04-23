@@ -19,7 +19,7 @@ class NewEszkozDialog extends ConsumerWidget {
   final TextEditingController _responsibleController = TextEditingController();
   final TextEditingController _commentController = TextEditingController();
   final TextEditingController _valueController = TextEditingController();
-  final TextEditingController _locationDetailController = TextEditingController(); // ➕ ÚJ: pontos hely
+  final TextEditingController _locationDetailController = TextEditingController();
   String? _selectedLocation;
   File? _image;
 
@@ -27,10 +27,8 @@ class NewEszkozDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final eszkozState = ref.watch(eszkozViewModelProvider);
     final raktarState = ref.watch(raktarWidgetViewModelProvider);
-
     final svgState = ref.watch(svgViewModelProvider);
 
-    // Automatikusan beállítjuk a location detail-t a selectedId alapján
     if (svgState.selectedId != null && _locationDetailController.text != svgState.selectedId) {
       _locationDetailController.text = svgState.selectedId!;
     }
@@ -48,19 +46,15 @@ class NewEszkozDialog extends ConsumerWidget {
               const SizedBox(height: 10),
               _buildTextField("Eszköz neve *", _nameController, false, Colors.red),
               _buildTextField("Eszköz azonosító *", _idController, false, Colors.red),
-              _buildRaktarDropdownField("Lokáció", eszkozState.raktarak, ref),
+              _buildRaktarDropdownField("Lokáció *", eszkozState.raktarak, ref),
+              _buildTextField("Eszköz pontos helye *", _locationDetailController, true, Colors.red),
 
-                _buildTextField("Eszköz pontos helye", _locationDetailController, true),
-
-
-
-                Column(
-                  children: [
-                    const SizedBox(height: 10),
-                    //ref.read(raktarWidgetViewModelProvider.notifier).selectRaktar(raktarState?.selectedRaktar),
-                    RaktarWidget(),
-                  ],
-                ),
+              Column(
+                children: [
+                  const SizedBox(height: 10),
+                  RaktarWidget(),
+                ],
+              ),
 
               const SizedBox(height: 10),
               _buildTextField("Érték", _valueController, true),
@@ -89,32 +83,40 @@ class NewEszkozDialog extends ConsumerWidget {
                     style: ElevatedButton.styleFrom(backgroundColor: buttonColor),
                     child: Text("Hozzáadás", style: TextStyle(color: buttonTextColor)),
                     onPressed: () {
-                      if (_idController.text.isNotEmpty && _nameController.text.isNotEmpty) {
-                        final double? ertek = double.tryParse(_valueController.text);
-                        if (ertek == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text("Érvényes számot adj meg az érték mezőben!"),
-                          ));
-                          return;
-                        }
-
-                        ref.read(eszkozViewModelProvider.notifier).addNewEszkoz(
-                          EszkozModel(
-                            eszkozNev: _nameController.text,
-                            eszkozAzonosito: _idController.text,
-                            lokacio: _selectedLocation ?? '',
-                            felelosNev: _responsibleController.text,
-                            komment: _commentController.text,
-                            raktaronBelul: _locationDetailController.text.isNotEmpty ? int.tryParse(_locationDetailController.text) : null,
-                            ertek: ertek,
-                          ),
-                        );
-                        Navigator.of(context).pop();
-                      } else {
+                      if (_nameController.text.isEmpty ||
+                          _idController.text.isEmpty ||
+                          _selectedLocation == null ||
+                          _locationDetailController.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text("Kötelező kitölteni a csillagozott mezőket!"),
+                          content: Text("Kérlek töltsd ki az összes csillagozott mezőt!"),
                         ));
+                        return;
                       }
+
+                      final double? ertek = _valueController.text.isNotEmpty
+                          ? double.tryParse(_valueController.text)
+                          : null;
+
+                      if (_valueController.text.isNotEmpty && ertek == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text("Érvényes számot adj meg az érték mezőben!"),
+                        ));
+                        return;
+                      }
+
+                      ref.read(eszkozViewModelProvider.notifier).addNewEszkoz(
+                        EszkozModel(
+                          eszkozNev: _nameController.text,
+                          eszkozAzonosito: _idController.text,
+                          lokacio: _selectedLocation ?? '',
+                          raktaronBelul: int.tryParse(_locationDetailController.text),
+                          felelosNev: _responsibleController.text,
+                          komment: _commentController.text,
+                          ertek: ertek,
+                          // Ha a képet külön menteni akarod majd, itt kéne kezelni a képfeltöltést
+                        ),
+                      );
+                      Navigator.of(context).pop();
                     },
                   ),
                 ],
@@ -165,8 +167,8 @@ class NewEszkozDialog extends ConsumerWidget {
           );
         }).toList(),
         onChanged: (newValue) {
-
-          ref.read(raktarWidgetViewModelProvider.notifier).selectRaktar(raktarModelek.firstWhere((raktar) => raktar.nev == newValue));
+          ref.read(raktarWidgetViewModelProvider.notifier).selectRaktar(
+              raktarModelek.firstWhere((raktar) => raktar.nev == newValue));
           _selectedLocation = newValue;
         },
       ),
@@ -183,7 +185,6 @@ class NewEszkozDialog extends ConsumerWidget {
     }
   }
 }
-
 
 void showNewEszkozDialog(BuildContext context) {
   showDialog(
