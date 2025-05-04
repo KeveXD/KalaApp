@@ -7,8 +7,13 @@ import 'eszkoz_viewmodel.dart';
 
 class EszkozSzerkesztesPage extends ConsumerStatefulWidget {
   final EszkozModel eszkoz;
+  final bool isLeltar;
 
-  const EszkozSzerkesztesPage({Key? key, required this.eszkoz}) : super(key: key);
+  const EszkozSzerkesztesPage({
+    Key? key,
+    required this.eszkoz,
+    this.isLeltar = false,
+  }) : super(key: key);
 
   @override
   _SetEszkozPageState createState() => _SetEszkozPageState();
@@ -37,10 +42,15 @@ class _SetEszkozPageState extends ConsumerState<EszkozSzerkesztesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isLeltar = widget.isLeltar;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: appBarColor,
-        title: const Text("Eszköz szerkesztése", style: TextStyle(color: Colors.white)),
+        title: Text(
+          isLeltar ? "Leltár - Eszköz ellenőrzés" : "Eszköz szerkesztése",
+          style: const TextStyle(color: Colors.white),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -54,14 +64,33 @@ class _SetEszkozPageState extends ConsumerState<EszkozSzerkesztesPage> {
             _buildTextField("Érték (Ft)", ertekController, isNumber: true),
             const SizedBox(height: 16),
             _buildMegjegyzesek(),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => _mentes(ref),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: buttonColor,
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-              ),
-              child: const Text("Mentés", style: TextStyle(color: Colors.white)),
+            const SizedBox(height: 24),
+
+            // Gombok
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () => _mentes(ref),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isLeltar ? Colors.green : buttonColor,
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                  ),
+                  child: Text(
+                    isLeltar ? "Leltár mentése" : "Mentés",
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+                if (isLeltar)
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                    ),
+                    child: const Text("Leltár elvetése", style: TextStyle(color: Colors.white)),
+                  ),
+              ],
             ),
           ],
         ),
@@ -99,6 +128,7 @@ class _SetEszkozPageState extends ConsumerState<EszkozSzerkesztesPage> {
           MegjegyzesModel megjegyzes = entry.value;
           return Card(
             color: cardBackgroundColor,
+            shadowColor: cardShadowColor,
             child: ListTile(
               title: Text(megjegyzes.megjegyzes, style: TextStyle(color: primaryTextColor)),
               subtitle: Text(megjegyzes.felhasznaloNev, style: TextStyle(color: secondaryTextColor)),
