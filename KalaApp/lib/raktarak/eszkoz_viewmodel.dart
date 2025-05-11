@@ -7,6 +7,7 @@ import '../models/megjegyzes_model.dart';
 import '../models/elozmeny_bejegyzes_model.dart';
 import '../login/login_viewmodel.dart';
 import '../services/eszkoz_firebase_services.dart';
+import 'package:uuid/uuid.dart';
 
 class EszkozState {
   final List<EszkozModel> eszkozok;
@@ -104,7 +105,6 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
         ..add(ujMegjegyzes);
       final updatedEszkoz = eszkoz.copyWith(megjegyzesek: updatedMegjegyzesek);
 
-      await _firebaseService.updateEszkoz(eszkoz: updatedEszkoz);
       await _firebaseService.addMegjegyzesBejegyzes(eszkoz, ujMegjegyzes);
 
       final updatedEszkozok = state.eszkozok.map((e) =>
@@ -118,40 +118,18 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
     }
   }
 
-  //todo nem kell mert eszkozt updatelunk es ott updateljuk a leltart is
-  Future<void> addLeltarToEszkoz(EszkozModel eszkoz, LeltarBejegyzesModel ujLeltar) async {
+
+
+  Future<MegjegyzesModel?> createMegjegyzes(String szoveg, WidgetRef ref) async {
     try {
-      final updatedLeltarak = List<LeltarBejegyzesModel>.from(eszkoz.leltarozasok)
-        ..add(ujLeltar);
-
-      final updatedEszkoz = eszkoz.copyWith(leltarozasok: updatedLeltarak);
-
-      await _firebaseService.updateEszkoz(eszkoz: updatedEszkoz);
-      await _firebaseService.addLeltarBejegyzes(eszkoz, ujLeltar);
-
-      final updatedEszkozok = state.eszkozok.map((e) =>
-      e.eszkozAzonosito == eszkoz.eszkozAzonosito ? updatedEszkoz : e
-      ).toList();
-
-      state = state.copyWith(eszkozok: updatedEszkozok);
-
-      print("Leltár sikeresen hozzáadva!");
-    } catch (e) {
-      print("Hiba a leltár hozzáadásakor: $e");
-    }
-  }
-
-  Future<MegjegyzesModel?> createMegjegyzes(String szoveg,
-      WidgetRef ref) async {
-    try {
-      final aktualsiFelhasznalo = ref
-          .read(loginViewModelProvider)
-          .felhasznalo;
+      final aktualsiFelhasznalo = ref.read(loginViewModelProvider).felhasznalo;
       if (aktualsiFelhasznalo == null) return null;
 
-      String formattedDate = DateTime.now().toIso8601String();
+      final String formattedDate = DateTime.now().toIso8601String();
+      final String ujAzonosito = const Uuid().v4();
+
       return MegjegyzesModel(
-        azonosito: "11",
+        azonosito: ujAzonosito,
         megjegyzes: szoveg,
         datum: formattedDate,
         emailCim: aktualsiFelhasznalo.email,
@@ -162,6 +140,7 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
       return null;
     }
   }
+
 
   Future<void> setKinelVanAzEszkoz(EszkozModel eszkoz, bool kinelVan,
       FelhasznaloModel? aktualisFelhasznalo) async {

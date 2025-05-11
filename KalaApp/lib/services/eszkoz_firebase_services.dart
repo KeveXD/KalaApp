@@ -141,7 +141,7 @@ class EszkozFirebaseService {
     final elozmenyekRef = _firestore
         .collection("Eszkozok")
         .doc(eszkoz.eszkozAzonosito)
-        .collection("elozmenyek");
+        .collection("Elozmenyek");
 
     final snapshot = await elozmenyekRef.get();
 
@@ -199,8 +199,15 @@ class EszkozFirebaseService {
   }) async {
     final eszkozRef = _firestore.collection("Eszkozok").doc(eszkoz.eszkozAzonosito);
 
+    // Fő dokumentum frissítése
     await eszkozRef.update(eszkoz.toJson());
+
+    // Alkollekciók frissítése
+    await updateElozmenyekForEszkoz(eszkoz);
+    await updateLeltarozasokForEszkoz(eszkoz);
+    await updateMegjegyzesekForEszkoz(eszkoz);
   }
+
 
 
   Future<void> deleteEszkoz({

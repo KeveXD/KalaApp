@@ -307,16 +307,13 @@ class _EszkozWidgetState extends riverpod.ConsumerState<EszkozWidget> {
     if (megjegyzesSzoveg.isEmpty) return;
 
     try {
-      // A createMegjegyzes metódus elérése az eszkozViewModelProvider segítségével
       final ujMegjegyzes = await ref.read(eszkozViewModelProvider.notifier)
           .createMegjegyzes(megjegyzesSzoveg, ref);
 
       if (ujMegjegyzes != null) {
-        // Megjegyzés hozzáadása az adott eszközhöz
         await ref.read(eszkozViewModelProvider.notifier).addMegjegyzesToEszkoz(
             widget.eszkoz, ujMegjegyzes);
 
-        // TextField ürítése
         _megjegyzesController.clear();
       }
     } catch (e) {

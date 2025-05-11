@@ -3,7 +3,7 @@ class MegjegyzesModel {
   final String emailCim;
   final String felhasznaloNev;
   final String megjegyzes;
-  final String datum; // ISO 8601 formátumban tároljuk
+  final String datum;
 
   MegjegyzesModel({
     required this.azonosito,
@@ -13,18 +13,16 @@ class MegjegyzesModel {
     required this.felhasznaloNev
   });
 
-  // JSON konvertálás
   Map<String, dynamic> toJson() {
     return {
       'azonosito': azonosito,
       'emailCim': emailCim,
       'megjegyzes': megjegyzes,
       'datum': datum,
-      'felhasznaloNev': felhasznaloNev, // Új mező az felhasználónév'
+      'felhasznaloNev': felhasznaloNev,
     };
   }
 
-  // JSON-ból objektummá alakítás
   factory MegjegyzesModel.fromJson(Map<String, dynamic> json) {
     return MegjegyzesModel(
       felhasznaloNev: json['felhasznaloNev'] ?? '',
@@ -35,5 +33,3 @@ class MegjegyzesModel {
     );
   }
 }
-
-// EszkozModel frissítve MegjegyzesModel listával
