@@ -125,7 +125,7 @@ class _RaktarPageState extends ConsumerState<EszkozokPage> {
       bottomNavigationBar: TalcaWidget(
         items: [
           TalcaItem(icon: Icons.home, onTap: () => Navigator.pushNamed(context, "/home")),
-          TalcaItem(icon: Icons.add_circle, onTap: () => showNewEszkozDialog(context)),
+          TalcaItem(icon: Icons.add_circle, onTap: () => showNewEszkozDialog(context, ref)),//todo ref
           TalcaItem(icon: Icons.person, onTap: () => Navigator.pushNamed(context, "/profile")),
         ],
       ),

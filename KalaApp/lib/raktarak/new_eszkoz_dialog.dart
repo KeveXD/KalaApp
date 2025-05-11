@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kalaapp/models/eszkoz_model.dart';
 import 'dart:typed_data';
 import '../constants.dart';
+import '../login/login_viewmodel.dart';
+import '../models/leltar_bejegyzes_model.dart';
 import '../models/raktar_model.dart';
 import '../svg/svg_viewmodel.dart';
 import '../widgets/raktarak/raktar_widget.dart';
@@ -13,10 +15,23 @@ import 'eszkoz_viewmodel.dart';
 
 Uint8List? _webImage;
 
-class NewEszkozDialog extends ConsumerWidget {
+class NewEszkozDialog extends ConsumerStatefulWidget {
   final EszkozModel? existingEszkoz;
+  final bool isLeltar;
 
-  NewEszkozDialog({this.existingEszkoz, Key? key}) : super(key: key);
+  NewEszkozDialog({this.existingEszkoz, this.isLeltar = false, Key? key})
+      : super(key: key);
+
+  @override
+  ConsumerState<NewEszkozDialog> createState() => _NewEszkozDialogState();
+}
+
+class _NewEszkozDialogState extends ConsumerState<NewEszkozDialog> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
 
   final TextEditingController _idController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
@@ -28,22 +43,20 @@ class NewEszkozDialog extends ConsumerWidget {
   File? _image;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final eszkozState = ref.watch(eszkozViewModelProvider);
     final raktarState = ref.watch(raktarWidgetViewModelProvider);
     final svgState = ref.watch(svgViewModelProvider);
 
-    // Ha van meglévő eszköz, töltsük ki a mezőket
-    if (existingEszkoz != null) {
-      _idController.text = existingEszkoz!.eszkozAzonosito;
-      _nameController.text = existingEszkoz!.eszkozNev;
-      _responsibleController.text = existingEszkoz!.felelosNev ?? '';
-      _commentController.text = existingEszkoz!.komment ?? '';
-      _valueController.text = existingEszkoz!.ertek?.toString() ?? '';
-      _locationDetailController.text = existingEszkoz!.raktaronBelul?.toString() ?? '';
-      _selectedLocation = existingEszkoz!.lokacio;
+    if (widget.existingEszkoz != null) {
+      _idController.text = widget.existingEszkoz!.eszkozAzonosito;
+      _nameController.text = widget.existingEszkoz!.eszkozNev;
+      _responsibleController.text = widget.existingEszkoz!.felelosNev ?? '';
+      _commentController.text = widget.existingEszkoz!.komment ?? '';
+      _valueController.text = widget.existingEszkoz!.ertek?.toString() ?? '';
+      _locationDetailController.text = widget.existingEszkoz!.raktaronBelul?.toString() ?? '';
+      _selectedLocation = widget.existingEszkoz!.lokacio;
     } else if (svgState.selectedId != null && _locationDetailController.text.isEmpty) {
-      // Ha új és van svg-ből selectedId, állítsuk be a pontos helyet
       _locationDetailController.text = svgState.selectedId!;
     }
 
@@ -57,7 +70,7 @@ class NewEszkozDialog extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                existingEszkoz == null ? "Új eszköz hozzáadása" : "Eszköz szerkesztése",
+                widget.existingEszkoz == null ? "Új eszköz hozzáadása" : "Eszköz szerkesztése",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: primaryTextColor),
               ),
               const SizedBox(height: 10),
@@ -95,7 +108,7 @@ class NewEszkozDialog extends ConsumerWidget {
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(backgroundColor: buttonColor),
-                    child: Text(existingEszkoz == null ? "Hozzáadás" : "Mentés", style: TextStyle(color: buttonTextColor)),
+                    child: Text(widget.existingEszkoz == null ? "Hozzáadás" : "Mentés", style: TextStyle(color: buttonTextColor)),
                     onPressed: () {
                       if (_nameController.text.isEmpty ||
                           _idController.text.isEmpty ||
@@ -127,11 +140,26 @@ class NewEszkozDialog extends ConsumerWidget {
                         komment: _commentController.text,
                         ertek: ertek,
                       );
+                      if (widget.isLeltar) {
+                        newEszkoz.leltarozasok.add(LeltarBejegyzesModel(
+                          id: DateTime.now()
+                              .millisecondsSinceEpoch
+                              .toString(),
+                          datum: DateTime.now().toString(),
+                          felhasznaloAzonosito: ref
+                              .read(loginViewModelProvider)
+                              .felhasznalo!
+                              .email,
+                        ));
+                      }
+                      if (widget.existingEszkoz == null) {
 
-                      if (existingEszkoz == null) {
-                        ref.read(eszkozViewModelProvider.notifier).addNewEszkoz(newEszkoz);
+                        ref.read(eszkozViewModelProvider.notifier)
+                            .addNewEszkoz(newEszkoz);
                       } else {
-                        ref.read(eszkozViewModelProvider.notifier).updateEszkoz(existingEszkoz!, newEszkoz);
+                        ref
+                            .read(eszkozViewModelProvider.notifier)
+                            .updateEszkoz(widget.existingEszkoz!, newEszkoz);
                       }
 
                       Navigator.of(context).pop();
@@ -204,13 +232,20 @@ class NewEszkozDialog extends ConsumerWidget {
   }
 }
 
-void showNewEszkozDialog(BuildContext context, {EszkozModel? existingEszkoz}) {
+void showNewEszkozDialog(BuildContext context, WidgetRef ref,
+    {EszkozModel? existingEszkoz, bool isLeltar = false}) {
+  if (existingEszkoz != null) {
+    ref
+        .read(svgViewModelProvider.notifier)
+        .updateState(id: existingEszkoz.raktaronBelul.toString());
+  }
   showDialog(
     context: context,
     builder: (context) => Dialog(
       child: Container(
         height: MediaQuery.of(context).size.height * 0.75,
-        child: NewEszkozDialog(existingEszkoz: existingEszkoz),
+        child:
+        NewEszkozDialog(existingEszkoz: existingEszkoz, isLeltar: isLeltar),
       ),
     ),
   );

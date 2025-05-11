@@ -3,8 +3,8 @@ import 'dart:html' as html;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kalaapp/raktarak/new_eszkoz_dialog.dart';
 import '../constants.dart';
-import '../raktarak/eszkoz_szerkesztes_page.dart';
 import '../raktarak/eszkoz_viewmodel.dart';
 import '../widgets/profil_widget.dart';
 import '../widgets/raktarak/raktar_widget.dart';
@@ -84,15 +84,8 @@ class _LeltarPageState extends ConsumerState<LeltarPage> {
 
 
     if (talalat != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => EszkozSzerkesztesPage(
-            eszkoz: talalat,
-            isLeltar: true,
-          ),
-        ),
-      );
+
+      showNewEszkozDialog(context, ref, existingEszkoz: talalat, isLeltar: true);
     } else {
       showDialog(
         context: context,

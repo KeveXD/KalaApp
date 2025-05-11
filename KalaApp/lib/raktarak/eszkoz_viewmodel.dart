@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/leltar_bejegyzes_model.dart';
 import '../models/raktar_model.dart';
 import '../models/eszkoz_model.dart';
 import '../models/felhasznalo_model.dart';
@@ -104,6 +105,7 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
       final updatedEszkoz = eszkoz.copyWith(megjegyzesek: updatedMegjegyzesek);
 
       await _firebaseService.updateEszkoz(eszkoz: updatedEszkoz);
+      await _firebaseService.addMegjegyzesBejegyzes(eszkoz, ujMegjegyzes);
 
       final updatedEszkozok = state.eszkozok.map((e) =>
       e.eszkozAzonosito == eszkoz.eszkozAzonosito ? updatedEszkoz : e
@@ -113,6 +115,29 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
       print("Megjegyzés sikeresen hozzáadva!");
     } catch (e) {
       print("Hiba a megjegyzés hozzáadásakor: $e");
+    }
+  }
+
+  //todo nem kell mert eszkozt updatelunk es ott updateljuk a leltart is
+  Future<void> addLeltarToEszkoz(EszkozModel eszkoz, LeltarBejegyzesModel ujLeltar) async {
+    try {
+      final updatedLeltarak = List<LeltarBejegyzesModel>.from(eszkoz.leltarozasok)
+        ..add(ujLeltar);
+
+      final updatedEszkoz = eszkoz.copyWith(leltarozasok: updatedLeltarak);
+
+      await _firebaseService.updateEszkoz(eszkoz: updatedEszkoz);
+      await _firebaseService.addLeltarBejegyzes(eszkoz, ujLeltar);
+
+      final updatedEszkozok = state.eszkozok.map((e) =>
+      e.eszkozAzonosito == eszkoz.eszkozAzonosito ? updatedEszkoz : e
+      ).toList();
+
+      state = state.copyWith(eszkozok: updatedEszkozok);
+
+      print("Leltár sikeresen hozzáadva!");
+    } catch (e) {
+      print("Hiba a leltár hozzáadásakor: $e");
     }
   }
 
@@ -151,10 +176,7 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
       );
 
       final elozmeny = ElozmenyBejegyzesModel(
-        id: DateTime
-            .now()
-            .millisecondsSinceEpoch
-            .toString(),
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
         email: aktualisFelhasznalo.email,
         idopont: DateTime.now(),
         nalaVan: kinelVan,
@@ -165,7 +187,13 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
       );
       await _firebaseService.addElozmenyBejegyzes(eszkoz, elozmeny);
 
-      await fetchEszkozok(); // todo lehetne optimalisabb is
+      final updatedEszkozok = state.eszkozok.map((e) =>
+      e.eszkozAzonosito == eszkoz.eszkozAzonosito ? updatedEszkoz.copyWith(
+        elozmenyek: [...eszkoz.elozmenyek, elozmeny],
+      ) : e
+      ).toList();
+
+      state = state.copyWith(eszkozok: updatedEszkozok);
 
       print("Eszköz státusza sikeresen frissítve!");
     } catch (e) {
@@ -183,6 +211,9 @@ class EszkozViewModel extends StateNotifier<EszkozState> {
       } else {
         // Ha nem változott az azonosító, csak frissítjük
         await _firebaseService.updateEszkoz(eszkoz: ujEszkoz);
+        await _firebaseService.updateElozmenyekForEszkoz(ujEszkoz);
+        await _firebaseService.updateLeltarozasokForEszkoz(ujEszkoz);
+        await _firebaseService.updateMegjegyzesekForEszkoz(ujEszkoz);
         fetchEszkozok();
         fetchRaktarak();
       }
