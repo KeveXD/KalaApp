@@ -42,8 +42,7 @@ class _LeltarPageState extends ConsumerState<LeltarPage> {
 
   void _stopCamera() {
     _videoElement?.srcObject?.getTracks().forEach((track) => track.stop());
-    final container = html.document.getElementById('cameraContainer');
-    container?.children.clear();
+    html.document.getElementById('cameraContainer')?.children.clear();
     _videoElement = null;
   }
 
@@ -63,48 +62,57 @@ class _LeltarPageState extends ConsumerState<LeltarPage> {
       container
         ?..children.clear()
         ..append(_videoElement!);
-    } catch (e) {
+    } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Nem sikerült megnyitni a kamerát')),
       );
     }
   }
 
-  void _handleInventory() {
-    final barcode = _barcodeController.text.trim();
-    if (barcode.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Kérlek add meg a vonalkódot!')),
-      );
-      return;
-    }
 
-    final eszkozok = ref.read(eszkozViewModelProvider).eszkozok;
-    final talalat = eszkozok.where((e) => e.eszkozAzonosito == barcode).firstOrNull;
+  List<EszkozModel> _szurtEszkozok(bool leltarozva) {
+    final eszkozok = ref.watch(eszkozViewModelProvider).eszkozok;
+    final today = DateTime.now();
+    return eszkozok.where((eszkoz) {
+      final leltarok = eszkoz.leltarozasok;
+      final vanMa = leltarok.any((l) {
+        final datum = DateTime.tryParse(l.datum);
+        return datum != null &&
+            datum.year == today.year &&
+            datum.month == today.month &&
+            datum.day == today.day;
+      });
+      return leltarozva ? vanMa : !vanMa;
+    }).toList();
+  }
 
-
-    if (talalat != null) {
-
-      showNewEszkozDialog(context, ref, existingEszkoz: talalat, isLeltar: true);
-    } else {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text("Hiba"),
-          content: const Text("Nincs ilyen azonosítójú eszköz!"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("OK"),
-            ),
-          ],
-        ),
-      );
-    }
+  Widget _buildEszkozCard(EszkozModel eszkoz, {bool clickable = false}) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: Colors.white,
+      elevation: 2,
+      child: ListTile(
+        title: Text(eszkoz.eszkozNev, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text("Azonosító: ${eszkoz.eszkozAzonosito}"),
+        trailing: const Icon(Icons.qr_code),
+        onTap: clickable
+            ? () => showNewEszkozDialog(
+          context,
+          ref,
+          existingEszkoz: eszkoz,
+          isLeltar: true,
+        )
+            : null,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final nemLeltarozottEszkozok = _szurtEszkozok(false);
+    final leltarozottEszkozok = _szurtEszkozok(true);
+
     return Scaffold(
       backgroundColor: defaultBackgroundColor,
       appBar: myAppBar,
@@ -114,67 +122,100 @@ class _LeltarPageState extends ConsumerState<LeltarPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             myDrawer,
+            const SizedBox(width: 16),
             Expanded(
-              flex: 2,
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: buttonColor,
-                        foregroundColor: buttonTextColor,
-                      ),
-                      onPressed: _toggleCamera,
-                      icon: Icon(_isCameraOpen ? Icons.close : Icons.camera_alt),
-                      label: Text(_isCameraOpen ? 'Kamera leállítása' : 'Kamera megnyitása'),
+              flex: 4,
+              child: Column(
+                children: [
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: buttonColor,
+                      foregroundColor: buttonTextColor,
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Kameranézet:',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: primaryTextColor,
-                      ),
+                    onPressed: _toggleCamera,
+                    icon: Icon(_isCameraOpen ? Icons.close : Icons.camera_alt),
+                    label: Text(_isCameraOpen ? 'Kamera leállítása' : 'Kamera megnyitása'),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Kameranézet:',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: primaryTextColor,
                     ),
-                    const SizedBox(height: 8),
-                    const SizedBox(
-                      height: 400,
-                      child: HtmlElementView(viewType: 'camera-container'),
-                    ),
-                    const SizedBox(height: 16),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                      child: TextField(
-                        controller: _barcodeController,
-                        decoration: InputDecoration(
-                          labelText: 'Vonalkód megadása',
-                          filled: true,
-                          fillColor: inputFieldColor,
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(color: inputBorderColor),
+                  ),
+                  const SizedBox(height: 8),
+                  const SizedBox(
+                    height: 400,
+                    child: HtmlElementView(viewType: 'camera-container'),
+                  ),
+
+
+
+
+
+
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Eszközök (nincs ma leltározva):',
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 8),
+                              Expanded(
+                                child: Scrollbar(
+                                  child: ListView.builder(
+                                    itemCount: nemLeltarozottEszkozok.length,
+                                    itemBuilder: (context, index) => _buildEszkozCard(
+                                      nemLeltarozottEszkozok[index],
+                                      clickable: true,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
+                        const VerticalDivider(width: 32),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Eszközök (ma már leltározva):',
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 8),
+                              Expanded(
+                                child: Scrollbar(
+                                  child: ListView.builder(
+                                    itemCount: leltarozottEszkozok.length,
+                                    itemBuilder: (context, index) => _buildEszkozCard(
+                                      leltarozottEszkozok[index],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 12),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                      ),
-                      onPressed: _handleInventory,
-                      child: const Text('Leltározás'),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(width: 16),
             Expanded(
+              flex: 1,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: const [
                   ProfilWidget(),
                   SizedBox(height: 16),
@@ -188,6 +229,7 @@ class _LeltarPageState extends ConsumerState<LeltarPage> {
     );
   }
 }
+
 
 void registerCameraContainer() {
   // ignore: undefined_prefixed_name
